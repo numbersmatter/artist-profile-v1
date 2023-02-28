@@ -18,6 +18,17 @@ export type Note = {
   body: string;
 }
 
+export interface Profile {
+  bannerImage: string,
+  avatar: string,
+  displayName: string,
+  profileHeadline: string,
+}
+
+const versionUrl = "testCollection/version5"
+
+
 export const db = {
   userNotes: (uid: string) => dataPoint<Note>(`users/${uid}/notes`),
+  profileData : ()=> dataPoint<Profile>(`${versionUrl}/profileData`)
 };
