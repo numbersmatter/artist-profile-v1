@@ -1,6 +1,6 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import {  z } from "zod";
 import { getProfileData } from "~/server/routes-logic/profile/profile.server";
 import { setProfileData } from "~/server/routes-logic/set-profile/set-profile.server";
@@ -9,6 +9,7 @@ import QuestionPanel from "~/server/routes-logic/set-profile/ui/forms/QuestionPa
 
 export async function action({params, request}:ActionArgs) {
   const formData = await request.formData();
+  const formValues = Object.fromEntries(formData)
   const profileId = params.profileId ?? "no-id"
 
   const ProfileSchema = z.object({
@@ -18,7 +19,7 @@ export async function action({params, request}:ActionArgs) {
     profileHeadline: z.string()
   })
 
-  const checkValues = ProfileSchema.safeParse(formData);
+  const checkValues = ProfileSchema.safeParse(formValues);
 
   if(!checkValues.success){
     return checkValues.error
@@ -29,20 +30,20 @@ export async function action({params, request}:ActionArgs) {
     return { writeResult}
   }
 
+  // const writeResult = await setProfileData(profileId, form)
+
   
 }
 
 export async function loader({params}:LoaderArgs) {
   const profileId = params.profileId ?? "no-profileId"
-  const profileData = await getProfileData(profileId);
+  const profileDoc = await getProfileData(profileId);
 
-  if(!profileData){
-    throw new Response("no profile data", {status:404})
-  }
+  
 
 
-  const questionName = "Add Question to Form";
-  const questionText = "Name your question and give it a description"
+  const questionName = "Set Profile Data";
+  const questionText = "For testing";
   const bannerImage: Field = {
     fieldId: "bannerImage",
     type: "shortText",
@@ -59,26 +60,33 @@ export async function loader({params}:LoaderArgs) {
     label: "Display Name",
   };
   const profileHeadline: Field = {
-    fieldId: "displayName",
+    fieldId: "profileHeadline",
     type: "shortText",
-    label: "Display Name",
+    label: "Profile Headline",
   };
  
   const fields= [ displayName, profileHeadline, bannerImage, avatar];
 
   const questionDisplayData = { questionName, questionText, fields};
 
+  const profileData = profileDoc ?? {}
+
   return json({ questionDisplayData, profileData });  
 }
 
 
 export default function AddQuestion() {
-  const { questionDisplayData} = useLoaderData<typeof loader>();
+  const { questionDisplayData, profileData} = useLoaderData<typeof loader>();
+  const actionData = useActionData();
+
+
   return (
       <Form method="post" >
+        <p>{ JSON.stringify(profileData)}  </p>
         <QuestionPanel
           questionDisplayData={questionDisplayData} 
-          actionData={{}}
+          actionData={{actionData}}
+          docData={profileData}
         />
       </Form>
     );

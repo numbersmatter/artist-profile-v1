@@ -1,4 +1,4 @@
-import { Field } from "~/server/request-site.server";
+import { Field } from "../../types";
 import CurrencyField from "./CurrencyField";
 import DateField from "./DateField";
 import SelectField from "./SelectField";

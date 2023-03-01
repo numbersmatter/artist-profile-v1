@@ -15,7 +15,7 @@ export async function loader({params}:LoaderArgs) {
     throw new Response("no profile data", {status:404})
   }
 
-  return json( profileData)
+  return json( {profileData})
   
 }
 
@@ -26,8 +26,9 @@ export default function ProfileLayout(){
   return (
     <div className="min-h-screen bg-[#2a9bb5] flex flex-col ">
       <ProfileHeader data={profileData} />
-      <div className="max-w-7xl py-5 mb-2 sm:px-6 lg:px-8 grow ">
+      <div className="mx-auto rounded-lg">
         <Outlet />
+
       </div>
     </div>
   )

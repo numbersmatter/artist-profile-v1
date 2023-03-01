@@ -8,13 +8,15 @@ import QuestionFields from "./QuestionFields";
 
 export default function QuestionPanel({ 
   questionDisplayData,
-  actionData
+  actionData,
+  docData,
 }:{
   questionDisplayData: {
     questionName: string,
     questionText: string,
     fields: Field[],
   } ,
+  docData: {[index:string]:string},
   actionData:any
 }) {
   const { questionName, questionText, fields }= questionDisplayData;
@@ -31,7 +33,7 @@ export default function QuestionPanel({
             questionName={questionName}
             questionText={questionText}
           >
-            <QuestionFields fields={fields} />
+            <QuestionFields responseValues={docData} fields={fields} />
           </QuestionContainer>
         </div>
         <FormButtons cancelUrl="../"/>

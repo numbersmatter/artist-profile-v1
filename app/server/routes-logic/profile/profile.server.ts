@@ -10,7 +10,7 @@ export const getProfileData = async (profileId: string) => {
   };
 
 
-  return {profileData}
+  return profileData
 }
 
 

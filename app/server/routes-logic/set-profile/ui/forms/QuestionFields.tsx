@@ -3,14 +3,14 @@ import QuestionField from "./QuestionField";
 
 export interface IQuestionFields {
   fields: Field[],
+  responseValues: { [index:string]: string},
 
 }
 
 export default function QuestionFields(props: IQuestionFields) {
-  const { fields,  } = props;
+  const { fields, responseValues } = props;
 
   const errors: { [index: string]: undefined } = {};
-  const responseValues: { [index: string]: undefined } = {};
 
 
   return (
