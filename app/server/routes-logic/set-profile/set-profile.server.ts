@@ -22,3 +22,25 @@ export const addFAQ =async (profileId:string, faqData: { faqAnswer: string, faqQ
   
   return { writeResult, faqId: faqRef.id}
 }
+
+export const getProfileFAQbyId =async ( faqId:string) => {
+  const faqRef = db.faqs().doc(faqId)
+  const faqSnap = await faqRef.get();
+  const faqDoc = faqSnap.data();
+
+  if(!faqDoc){
+    return undefined;
+  }
+
+  const faq = {...faqDoc, faqId } 
+  
+  return faq
+}
+
+export const updateFAQbyId =async (faqId:string, faqData: {faqAnswer: string, faqQuestion:string}) => {
+
+  const faqRef = db.faqs().doc(faqId);
+  const writeResult = await faqRef.update(faqData);
+
+  return { ...writeResult, faqId}
+}
