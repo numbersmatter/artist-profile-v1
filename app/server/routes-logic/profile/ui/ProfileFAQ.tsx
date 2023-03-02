@@ -11,10 +11,10 @@ import { MinusSmallIcon, PlusSmallIcon } from '@heroicons/react/24/outline'
 // ]
 
 export interface IProfileFaq {
-  faqs: { faqId: string, question:string, answer:string}[]
+  faqs: { faqId: string, faqQuestion: string, faqAnswer: string, createdAt?: any }[]
 }
 
-export default function ProfileFaq( props: IProfileFaq ) {
+export default function ProfileFaq(props: IProfileFaq) {
 
   const faqs = props.faqs
   return (
@@ -29,7 +29,7 @@ export default function ProfileFaq( props: IProfileFaq ) {
                   <>
                     <dt>
                       <Disclosure.Button className="flex w-full items-start justify-between text-left text-gray-900">
-                        <span className="text-base font-semibold leading-7">{faq.question}</span>
+                        <span className="text-base font-semibold leading-7">{faq.faqQuestion}</span>
                         <span className="ml-6 flex h-7 items-center">
                           {open ? (
                             <MinusSmallIcon className="h-6 w-6" aria-hidden="true" />
@@ -40,7 +40,7 @@ export default function ProfileFaq( props: IProfileFaq ) {
                       </Disclosure.Button>
                     </dt>
                     <Disclosure.Panel as="dd" className="mt-2 pr-12">
-                      <p className="text-base leading-7 text-gray-600">{faq.answer}</p>
+                      <p className="text-base leading-7 text-gray-600">{faq.faqAnswer}</p>
                     </Disclosure.Panel>
                   </>
                 )}

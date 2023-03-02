@@ -1,8 +1,9 @@
 import type { LoaderArgs } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
+import { getProfileFAQs } from "~/server/routes-logic/profile/profile.server"
 import ProfileFaq from "~/server/routes-logic/profile/ui/ProfileFAQ"
 import ProfileHero from "~/server/routes-logic/profile/ui/ProfileHero"
-const faqNotion = [
+const faqNotionRaw = [
   {
     id: 1,
     question: "Can I commission you?",
@@ -67,6 +68,8 @@ const faqNotion = [
 ]
 
 export async function loader({ params }: LoaderArgs) {
+  const profileId = params.profileId ?? "no-profileId"
+  const faqs = await getProfileFAQs("milachu92");
 
   const heroSection = {
 
@@ -75,10 +78,17 @@ export async function loader({ params }: LoaderArgs) {
   }
 
 
+  const faqNotion = faqNotionRaw.map((faq)=> ({
+    profileId: "milachu92",
+    faqQuestion: faq.question,
+    faqAnswer: faq.answer,
+    faqId: faq.id.toString(),
+  }))
 
 
   return {
     heroSection,
+    faqs,
     faqNotion,
     image1: "",
     image2: "https://firebasestorage.googleapis.com/v0/b/component-sites.appspot.com/o/user%2Fpq1caOfoOYMMljX8AXEmPQZEDij2%2FpublicImages%2F99435634-34D8-4696-A006-C0B0C5879155.png?alt=media&token=9fb7dcaa-8227-4d5e-9056-75e85d712ee8"
@@ -88,7 +98,7 @@ export async function loader({ params }: LoaderArgs) {
 
 
 export default function ProfileMain() {
-  const { image1, image2, faqNotion } = useLoaderData()
+  const { image1, image2, faqNotion, faqs } = useLoaderData<typeof loader>()
 
   const openForms = ["a", "b"]
 
@@ -116,8 +126,15 @@ export default function ProfileMain() {
 
         </div>
       </div>
+      <div>
+        { JSON.stringify(faqs)}
+      </div>
 
-
+      {
+        faqs 
+        ? <ProfileFaq faqs={faqs} /> 
+        :null
+      }
 
 
       <ProfileFaq faqs={faqNotion} />

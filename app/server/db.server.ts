@@ -1,4 +1,4 @@
-import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
+import type { FieldValue, Firestore, QueryDocumentSnapshot, Timestamp } from "firebase-admin/firestore";
 import { getFirestore } from "firebase-admin/firestore";
 
 // helper function to convert firestore data to typescript
@@ -25,10 +25,25 @@ export interface Profile {
   profileHeadline: string,
 }
 
+export interface FAQ {
+  profileId: string,
+  createdAt: Timestamp,
+  faqAnswer: string,
+  faqQuestion: string,
+}
+export interface FAQwrite {
+  profileId: string;
+  createdAt: FieldValue;
+  faqAnswer: string;
+  faqQuestion: string;
+}
+
 const versionUrl = "testCollection/version5"
 
 
 export const db = {
   userNotes: (uid: string) => dataPoint<Note>(`users/${uid}/notes`),
-  profileData : ()=> dataPoint<Profile>(`${versionUrl}/profileData`)
+  profileData : ()=> dataPoint<Profile>(`${versionUrl}/profileData`),
+  faqs: () =>dataPoint<FAQ>(`${versionUrl}/faqs`),
+  faqsWrite: () =>dataPoint<FAQwrite>(`${versionUrl}/faqs`),
 };
