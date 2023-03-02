@@ -1,66 +1,129 @@
-import { LoaderArgs } from "@remix-run/node"
+import type { LoaderArgs } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
+import ProfileFaq from "~/server/routes-logic/profile/ui/ProfileFAQ"
+import ProfileHero from "~/server/routes-logic/profile/ui/ProfileHero"
+const faqNotion = [
+  {
+    id: 1,
+    question: "Can I commission you?",
+    answer:
+      "Absolutely! I usually open a certain number of commission slots once every month or two. When I do open, I’ll make posts on my Patreon, Discord servers, Twitter, FurAffinity, & Inbunny with instructions on how to submit a request. I open a form, you send in your idea, and if it’s something I really want to make, I’ll agree to make your commission.",
+  },
 
-export async function loader({params} :LoaderArgs) {
+  {
+    id: 2,
+    question: "Can I include your characters in my commission?",
+    answer:
+      "Yes, people often commission my characters to be paired with theirs, and it’s always okay. Mila, Lantha, Buttons, Milo, and all my other characters are okay to be commissioned. The only exception is Snowball, the white cat. She requires that you go on a date with her first (In other words, you must commission a normal Safe-for-Work drawing with her first without any sex, then you may request as many nsfw pics with her after that as you want.)",
+  },
+  {
+    id: 3,
+    question: "How much does a commission this cost?  subquestion how much does each component cost?",
+    answer:
+      "There are 3 main factors that determine price: how many characters, how detailed are the characters, and how detailed in the scenery? More characters costs more in general. For example: Small characters like small un-evolved pokemon cost less than larger and more detailed characters like final-evolution pokemon. Also, characters with complex fur color patterns will cost more.",
+  },
+  {
+    id: 4,
+    question: "Pur-furred commissions subjects.  I like drawing the following so I’m more likely to accept these kinds of commissions.",
+    answer:
+      "Size difference, Fellatio, Ball-worship, Rimjobs, …",
+  },
+  {
+    id: 5,
+    question: "Thing’s that I’m ok with drawing.  I’m ok with drawing the following, but they are not my favorite.  I may still accept these commissions?",
+    answer:
+      "Vaginal penetration, Anal penetration, light Watersports, Kissing, …",
+  },
+  {
+    id: 6,
+    question: "Things I won’t draw.  Do not attempt to commission these things, they will be rejected outright.",
+    answer:
+      "Gore, Death, Fecal play, Underaged, …",
+  },
+  {
+    id: 7,
+    question: "What are the restrictions for posting the commission ?  ex. Can I post the commission once it is finished?  Can I post the commission at site x or in x discord server?",
+    answer:
+      "You can post works-in-progress & finished commission pieces anywhere you want and whenever you want, even if I haven’t posted them anywhere public yet. ",
+  },
+  {
+    id: 8,
+    question: "Can I use your characters in a commission from another artist?",
+    answer:
+      "Yes, and you can draw them yourself if you would like. Draw them with any kink you desire, nothing is off-limits. It’s you and your fantasies, so go wild. And feel free to show me as well! I love fan art!",
+  },
+  {
+    id: 9,
+    question: "Can I commission a comic from you?",
+    answer:
+      "It depends. If you want 1-2 comic pages from me, then that can be done like a normal commission - you can send in a form response explaining how many panels you want. I might even do 3 pages for a normal commission depending on how many panels you want. However, if you want anything that is 4 pages or longer, you can send me a DM telling me your idea and I will decide if I want to make it. I can make comics be as long as you want them, the only thing that matters is if I want to make it too & how much you’re willing to spend. It’s best to send me a DM giving me your idea first, including your expectations, like you want certain kinks to show up at minimum.",
+  },
+  {
+    id: 10,
+    question: "Can I commission an animation from you?",
+    answer:
+      "It depends. You can send in your idea for an animation like a normal commission request using my form when commission slots are open, and if it seems do-able for me, I would accept it.",
+  },
+]
+
+export async function loader({ params }: LoaderArgs) {
+
+  const heroSection = {
+
+    image1: "",
+    image2: "https://firebasestorage.googleapis.com/v0/b/component-sites.appspot.com/o/user%2Fpq1caOfoOYMMljX8AXEmPQZEDij2%2FpublicImages%2F99435634-34D8-4696-A006-C0B0C5879155.png?alt=media&token=9fb7dcaa-8227-4d5e-9056-75e85d712ee8"
+  }
+
+
 
 
   return {
-    image1:"" ,
+    heroSection,
+    faqNotion,
+    image1: "",
     image2: "https://firebasestorage.googleapis.com/v0/b/component-sites.appspot.com/o/user%2Fpq1caOfoOYMMljX8AXEmPQZEDij2%2FpublicImages%2F99435634-34D8-4696-A006-C0B0C5879155.png?alt=media&token=9fb7dcaa-8227-4d5e-9056-75e85d712ee8"
   }
-  
+
 }
 
 
 export default function ProfileMain() {
-  const { image1, image2} = useLoaderData()
+  const { image1, image2, faqNotion } = useLoaderData()
+
+  const openForms = ["a", "b"]
 
   return (
-    <div className="relative bg-white">
-      <div className="mx-auto max-w-7xl lg:grid lg:grid-cols-12 lg:gap-x-8 lg:px-8">
-        <div className="px-6 pt-10 pb-24 sm:pb-32 lg:col-span-7 lg:px-0 lg:pt-48 lg:pb-56 xl:col-span-6">
-          <div className="mx-auto max-w-2xl lg:mx-0">
-            <img
-              className="h-11"
-              src={image1}
-              alt="Your Company"
-            />
-            <div className="hidden sm:mt-32 sm:flex lg:mt-16">
-              <div className="relative rounded-full py-1 px-3 text-sm leading-6 text-gray-500 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
-                Anim aute id magna aliqua ad ad non deserunt sunt.{' '}
-                <a href="#" className="whitespace-nowrap font-semibold text-indigo-600">
-                  <span className="absolute inset-0" aria-hidden="true" />
-                  Read more <span aria-hidden="true">&rarr;</span>
-                </a>
+    <div className="space-y-4">
+      <ProfileHero image1={image1} image2={image2} />
+
+      <div id="open-forms" className="relative">
+
+        <div className="mx-auto max-w-7xl py-5  grid grid-cols-1 gap-y-4 ">
+          <h2 className="mx-auto text-4xl py-3 text-white">Open Forms</h2>
+          {
+            openForms.map((opportunity) =>
+              <div key={opportunity} className="overflow-hidden mx-3 rounded-lg bg-white shadow">
+                <div className="px-4 py-5 sm:px-6">
+                  <h4>Commission Requests</h4>
+                </div>
+                <div className="bg-gray-50 px-4 py-5 sm:p-6">{/* Content goes here */}
+                  <p>Commission me to do stuff</p>
+                </div>
               </div>
-            </div>
-            <h1 className="mt-24 text-4xl font-bold tracking-tight text-gray-900 sm:mt-10 sm:text-6xl">
-              Data to enrich your online business
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-gray-600">
-              Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt amet
-              fugiat veniam occaecat fugiat aliqua.
-            </p>
-            <div className="mt-10 flex items-center gap-x-6">
-              <a
-                href="#"
-                className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                Get started
-              </a>
-              <a href="#" className="text-sm font-semibold leading-6 text-gray-900">
-                Learn more <span aria-hidden="true">→</span>
-              </a>
-            </div>
-          </div>
+
+            )
+          }
+
         </div>
-        <div className="relative lg:col-span-5 lg:-mr-8 xl:absolute xl:inset-0 xl:left-1/2 xl:mr-0">
-          <img
-            className="aspect-[3/2] w-full bg-gray-50 object-cover lg:absolute lg:inset-0 lg:aspect-auto lg:h-full"
-            src={image2}
-            alt=""
-          />
-        </div>
+      </div>
+
+
+
+
+      <ProfileFaq faqs={faqNotion} />
+
+      <div className=" h-10">
+        footer
       </div>
     </div>
   )
