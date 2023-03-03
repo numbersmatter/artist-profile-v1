@@ -47,7 +47,7 @@
 	"Make action function": {
 		"prefix": "makeaction",
 		"body": [
-			"export async function action({params}:ActionArgs) {",
+			"export async function action({, request}:ActionArgs) {",
 			"  ",
 			"",
 			"  return json({});",

@@ -2,8 +2,7 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import {  z } from "zod";
-import { getProfileData } from "~/server/routes-logic/profile/profile.server";
-import { addFAQ, setProfileData } from "~/server/routes-logic/set-profile/set-profile.server";
+import { addFAQ, } from "~/server/routes-logic/set-profile/set-profile.server";
 import type { Field } from "~/server/routes-logic/set-profile/types";
 import QuestionPanel from "~/server/routes-logic/set-profile/ui/forms/QuestionPanel";
 
@@ -34,10 +33,6 @@ export async function action({params, request}:ActionArgs) {
 }
 
 export async function loader({params}:LoaderArgs) {
-  const profileId = params.profileId ?? "no-profileId"
-  const profileDoc = await getProfileData(profileId);
-
-  
 
 
   const questionName = "Create A FAQ question";
@@ -58,14 +53,13 @@ export async function loader({params}:LoaderArgs) {
 
   const questionDisplayData = { questionName, questionText, fields};
 
-  const profileData = profileDoc ?? {}
 
-  return json({ questionDisplayData, profileData });  
+  return json({ questionDisplayData, });  
 }
 
 
 export default function AddFAQ() {
-  const { questionDisplayData, profileData} = useLoaderData<typeof loader>();
+  const { questionDisplayData,} = useLoaderData<typeof loader>();
   const actionData = useActionData();
 
 
@@ -75,7 +69,7 @@ export default function AddFAQ() {
         <QuestionPanel
           questionDisplayData={questionDisplayData} 
           actionData={{actionData}}
-          docData={profileData}
+          docData={{}}
         />
       </Form>
     );
