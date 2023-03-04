@@ -26,16 +26,19 @@ export interface Profile {
 }
 
 export interface FAQ {
-  profileId: string,
   createdAt: Timestamp,
   faqAnswer: string,
   faqQuestion: string,
 }
 export interface FAQwrite {
-  profileId: string;
   createdAt: FieldValue;
   faqAnswer: string;
   faqQuestion: string;
+}
+
+export interface Opportunity {
+  createdAt:Timestamp,
+
 }
 
 const versionUrl = "testCollection/version6"
@@ -43,7 +46,9 @@ const versionUrl = "testCollection/version6"
 
 export const db = {
   userNotes: (uid: string) => dataPoint<Note>(`users/${uid}/notes`),
-  profileData : ()=> dataPoint<Profile>(`${versionUrl}/profileData`),
-  faqs: () =>dataPoint<FAQ>(`${versionUrl}/faqs`),
-  faqsWrite: () =>dataPoint<FAQwrite>(`${versionUrl}/faqs`),
+  profile : ()=> dataPoint<Profile>(`${versionUrl}/profile`),
+  faqs: (profileId:string) =>dataPoint<FAQ>(`${versionUrl}/profile/${profileId}/faqs`),
+  faqsWrite: (profileId:string) =>dataPoint<FAQwrite>(`${versionUrl}/profile/${profileId}/faqs`),
+  opportunites: (profileId:string) =>dataPoint<Opportunity>(`${versionUrl}/profile/${profileId}/opportunites`),
+  
 };
