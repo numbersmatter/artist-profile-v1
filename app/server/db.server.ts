@@ -38,7 +38,7 @@ export interface FAQwrite {
   faqQuestion: string;
 }
 
-const versionUrl = "testCollection/version5"
+const versionUrl = "testCollection/version6"
 
 
 export const db = {

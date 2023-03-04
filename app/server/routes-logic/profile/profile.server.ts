@@ -1,7 +1,7 @@
 import { db } from "~/server/db.server"
 
 
-export const getProfileData = async (profileId: string) => {
+export const getProfilePageHeaderData = async (profileId: string) => {
   const profileDataRef = db.profileData().doc(profileId);
   const profileSnap = await profileDataRef.get();
   const profileData = profileSnap.data();

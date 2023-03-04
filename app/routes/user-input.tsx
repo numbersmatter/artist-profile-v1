@@ -1,7 +1,7 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
-import { getProfileData } from "~/server/routes-logic/profile/profile.server";
+import { getProfilePageHeaderData } from "~/server/routes-logic/profile/profile.server";
 import ProfileHeader from "~/server/routes-logic/profile/ui/ProfileHeader";
 
 
@@ -9,7 +9,7 @@ import ProfileHeader from "~/server/routes-logic/profile/ui/ProfileHeader";
 
 
 export async function loader({params}:LoaderArgs) {
-  const profileData = await getProfileData("milachu92");
+  const profileData = await getProfilePageHeaderData("milachu92");
 
   if(!profileData){
     throw new Response("no profile data", {status:404})

@@ -2,7 +2,7 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import {  z } from "zod";
-import { getProfileData } from "~/server/routes-logic/profile/profile.server";
+import { getProfilePageHeaderData } from "~/server/routes-logic/profile/profile.server";
 import { addFAQ, getProfileFAQbyId, setProfileData, updateFAQbyId } from "~/server/routes-logic/set-profile/set-profile.server";
 import type { Field } from "~/server/routes-logic/set-profile/types";
 import QuestionPanel from "~/server/routes-logic/set-profile/ui/forms/QuestionPanel";
