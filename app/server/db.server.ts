@@ -38,7 +38,9 @@ export interface FAQwrite {
 
 export interface Opportunity {
   createdAt:Timestamp,
-
+  name: string,
+  text:string,
+  status: "open" | "closed";
 }
 
 const versionUrl = "testCollection/version6"

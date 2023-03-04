@@ -1,6 +1,7 @@
 import type { LoaderArgs } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
 import { getProfileFAQs } from "~/server/routes-logic/profile/profile.server"
+import OpportunityCard from "~/server/routes-logic/profile/ui/OpportunityCard"
 import ProfileFaq from "~/server/routes-logic/profile/ui/ProfileFAQ"
 import ProfileHero from "~/server/routes-logic/profile/ui/ProfileHero"
 const faqNotionRaw = [
@@ -112,14 +113,7 @@ export default function ProfileMain() {
           <h2 className="mx-auto text-4xl py-3 text-white">Open Forms</h2>
           {
             openForms.map((opportunity) =>
-              <div key={opportunity} className="overflow-hidden mx-3 rounded-lg bg-white shadow">
-                <div className="px-4 py-5 sm:px-6">
-                  <h4>Commission Requests</h4>
-                </div>
-                <div className="bg-gray-50 px-4 py-5 sm:p-6">{/* Content goes here */}
-                  <p>Commission me to do stuff</p>
-                </div>
-              </div>
+              <OpportunityCard key={opportunity} name = "Commission Slot" text="standard Commisson"/>
 
             )
           }
