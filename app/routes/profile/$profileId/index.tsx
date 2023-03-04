@@ -120,18 +120,17 @@ export default function ProfileMain() {
 
         </div>
       </div>
-      <div>
-        { JSON.stringify(faqs)}
-      </div>
 
       {
-        faqs 
+        faqs.length > 0
         ? <ProfileFaq faqs={faqs} /> 
         :null
       }
 
-
+      <div className=" max-w-2xl mx-auto">
       <ProfileFaq faqs={faqNotion} />
+
+      </div>
 
       <div className=" h-10">
         footer

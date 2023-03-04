@@ -7,7 +7,7 @@ export interface IProfileHero {
 }
 
 export default function ProfileHero(props: IProfileHero) {
-  const {image1, image2} = props;
+  const { image2} = props;
 
   
   return(
@@ -23,8 +23,7 @@ export default function ProfileHero(props: IProfileHero) {
           Milachu92 the Pikachu
         </h1>
         <p className="mt-6 text-lg leading-8 text-gray-600">
-          Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt amet
-          fugiat veniam occaecat fugiat aliqua.
+          Hello
         </p>
         <div className="mt-10 flex items-center gap-x-6">
           <Link
