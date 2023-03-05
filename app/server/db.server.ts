@@ -1,5 +1,6 @@
 import type { FieldValue, Firestore, QueryDocumentSnapshot, Timestamp } from "firebase-admin/firestore";
 import { getFirestore } from "firebase-admin/firestore";
+import { Question, Questionform } from "./routes-logic/formBuilder/types";
 
 // helper function to convert firestore data to typescript
 const converter = <T>() => ({
@@ -51,6 +52,9 @@ export const db = {
   profile : ()=> dataPoint<Profile>(`${versionUrl}/profile`),
   faqs: (profileId:string) =>dataPoint<FAQ>(`${versionUrl}/profile/${profileId}/faqs`),
   faqsWrite: (profileId:string) =>dataPoint<FAQwrite>(`${versionUrl}/profile/${profileId}/faqs`),
-  opportunites: (profileId:string) =>dataPoint<Opportunity>(`${versionUrl}/profile/${profileId}/opportunites`),
-  
+  opportunites: (profileId:string) =>dataPoint<Opportunity>(`${versionUrl}/profile/${profileId}/opportunities`),
+  intents: (profileId:string) => dataPoint(`${versionUrl}/profile/${profileId}/intents`),
+  questions: (profileId:string) => dataPoint<Questionform>(`${versionUrl}/profile/${profileId}/questions`),
+  responses: (profileId: string, intentId:string)=> dataPoint(`${versionUrl}/profile/${profileId}/intents/${intentId}/repsonses`), 
+
 };

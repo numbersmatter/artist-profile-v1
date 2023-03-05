@@ -20,9 +20,15 @@ schema? : {
   maxLenght: number,
  }
 };
-interface Question {
+export interface Question {
 fields: Field[];
-questionName: string;
-questionText: string;
+name: string;
+text: string;
+
+}
+export interface Questionform {
+fieldOrder: string[];
+name: string;
+text: string;
 
 }

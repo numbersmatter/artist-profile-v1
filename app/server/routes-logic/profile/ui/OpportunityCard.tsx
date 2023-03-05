@@ -1,10 +1,13 @@
 import { Link } from "@remix-run/react";
 
 
-export default function OpportunityCard(props: {name:string, text:string}) {
-  const { name, text} = props;
+export default function OpportunityCard(props: {name:string, text:string, linkUrl:string}) {
+  const { name, text, linkUrl} = props;
+
+  
+
   return (
-    <div className="max-w-lg mx-auto rounded-lg shadow-lg overflow-hidden lg:max-w-none lg:flex">
+    <div className="max-w-2xl mx-auto rounded-lg shadow-lg overflow-hidden lg:max-w-none lg:flex">
     <div className="flex-1 bg-white px-6 py-8 lg:p-12">
       <h3 className="text-2xl font-extrabold text-green-700 sm:text-3xl"> {name}</h3>
       <p className="mt-6 text-base text-gray-500">
@@ -43,7 +46,7 @@ export default function OpportunityCard(props: {name:string, text:string}) {
       <div className="mt-6">
         <div className="rounded-md shadow">
           <Link
-            to={"placeholder"}
+            to={linkUrl}
             className="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-gray-900"
           >
             Start Form
