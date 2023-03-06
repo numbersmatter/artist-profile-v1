@@ -115,7 +115,7 @@ export default function ProfileMain() {
           <h2 className="mx-auto text-4xl py-3 text-white">Open Forms</h2>
           {
             opportunities.map((opportunity) =>{
-              const linkUrl = `forms/${opportunity.opportunityId}/create-new`
+              const linkUrl = `tos/${opportunity.opportunityId}`
               return <OpportunityCard 
                 key={opportunity.opportunityId} 
                 name ={opportunity.name} 
