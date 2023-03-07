@@ -48,6 +48,8 @@ export interface IntentDoc {
   humanReadableId: string,
   opportunityId:string,
   status: "in-progress" | "submitted";
+  questionOrder: string[];
+  questionStatus: {[key:string]: boolean}
 }
 
 const versionUrl = "testCollection/version6"

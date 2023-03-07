@@ -1,8 +1,10 @@
 import { FieldValue } from "firebase-admin/firestore";
-import { db } from "~/server/db.server";
-import * as hri from "human-readable-ids";
-import { Field } from "../formBuilder/types";
+import { db, IntentDoc } from "~/server/db.server";
+import type { Field } from "../formBuilder/types";
 import { z } from "zod";
+//@ts-expect-error
+import * as hri from "human-readable-ids";
+import { Params } from "@remix-run/react";
 
 // Singleton
 export const getProfilePageHeaderData = async (profileId: string) => {
@@ -45,7 +47,9 @@ export const getOpenOpportunities = async (profileId: string) => {
 
 export const createNewIntent = async (
   profileId: string,
-  opportunityId: string
+  opportunityId: string,
+  questionStatus: {[key:string]: boolean},
+  questionOrder: string[],
 ) => {
   const intentRef = db.intents(profileId).doc();
   
@@ -53,8 +57,12 @@ export const createNewIntent = async (
     opportunityId: opportunityId,
     createdAt: FieldValue.serverTimestamp(),
     humanReadableId: hri.hri.random(),
+    status: "in-progress",
+    questionOrder: questionOrder,
+    questionStatus: questionStatus
   };
   
+  //  @ts-expect-error
   const writeResult = await intentRef.create(defaultData);
   
   return { ...writeResult, intentId: intentRef.id };
@@ -72,6 +80,24 @@ export const getIntentById = async ( profileId:string, intentId:string ) =>{
   return {...intentData, intentId}
 }
 
+export const makeQuestion = async(
+  profileId:string,
+  data: {name:string, text:string}
+)=>{
+  const newQuestRef = db.questions(profileId).doc();
+
+  const writeData = {
+    ...data,
+    fieldOrder: [],
+    fieldObj: {},
+  }
+
+  const writequestion = await newQuestRef.create(writeData)
+
+  return { ...writequestion, questionId:newQuestRef.id }
+}
+
+
 export const getQuestionById = async (
   profileId: string,
   questionId: string
@@ -86,6 +112,14 @@ export const getQuestionById = async (
 
   return { ...questionData, questionId}
 };
+
+export const getAllQuestions =async (profileId:string) => {
+  const allQuestionsRef = db.questions(profileId);
+  const allQuestionsSnap = await allQuestionsRef.get(); 
+  const allQuestions = allQuestionsSnap.docs.map((snap)=>({...snap.data(), questionId: snap.id}))
+  
+  return allQuestions;
+}
 
 export const getResponseById =async ( profileId: string, intentId: string, questionId: string ) => {
   const responseDocRef = db.responses(profileId, intentId).doc(questionId);
@@ -142,16 +176,32 @@ export const getRequestIdRedirectUrl =async (profileId:string, formId:string, in
     return submittedUrl;
   };
 
-  const nextNonCompletedQuestion = requestDoc.questionOrder.find(
-    (questionId)=> requestDoc.questionStatus[questionId] === false
+  const nextNonCompletedQuestion = intentDoc.questionOrder.find(
+    (questionId)=> intentDoc.questionStatus[questionId] === false
   );
 
   if(!nextNonCompletedQuestion){
-    const reviewBeforeSubmitUrl = `/requests/${requestId}/review`;
+    const reviewBeforeSubmitUrl = `review`;
     return reviewBeforeSubmitUrl;
   };
   
-  const nextQuestionUrl = `/requests/${requestId}/questions/${nextNonCompletedQuestion}`;
+  // const nextQuestionUrl = `/requests/${requestId}/questions/${nextNonCompletedQuestion}`;
 
-  return nextQuestionUrl;
+  return nextNonCompletedQuestion;
 };
+
+
+export const getParams = (params: Params<string>)=>{
+  const profileId = params.profileId ?? "no-profileId";
+  const questionId = params.questionId ?? "no-questionId";
+  const formId = params.formId ?? "no-formId";
+
+
+
+  return {
+    profileId,
+    questionId,
+    formId,
+
+  }
+}
