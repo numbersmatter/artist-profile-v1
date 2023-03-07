@@ -28,6 +28,7 @@ text: string;
 }
 export interface Questionform {
 fieldOrder: string[];
+fieldObj: { [key:string]:Field};
 name: string;
 text: string;
 

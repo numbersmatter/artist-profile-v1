@@ -43,6 +43,12 @@ export interface Opportunity {
   text:string,
   status: "open" | "closed";
 }
+export interface IntentDoc {
+  createdAt:Timestamp,
+  humanReadableId: string,
+  opportunityId:string,
+  status: "in-progress" | "submitted";
+}
 
 const versionUrl = "testCollection/version6"
 
@@ -53,8 +59,8 @@ export const db = {
   faqs: (profileId:string) =>dataPoint<FAQ>(`${versionUrl}/profile/${profileId}/faqs`),
   faqsWrite: (profileId:string) =>dataPoint<FAQwrite>(`${versionUrl}/profile/${profileId}/faqs`),
   opportunites: (profileId:string) =>dataPoint<Opportunity>(`${versionUrl}/profile/${profileId}/opportunities`),
-  intents: (profileId:string) => dataPoint(`${versionUrl}/profile/${profileId}/intents`),
+  intents: (profileId:string) => dataPoint<IntentDoc>(`${versionUrl}/profile/${profileId}/intents`),
   questions: (profileId:string) => dataPoint<Questionform>(`${versionUrl}/profile/${profileId}/questions`),
-  responses: (profileId: string, intentId:string)=> dataPoint(`${versionUrl}/profile/${profileId}/intents/${intentId}/repsonses`), 
+  responses: (profileId: string, intentId:string)=> dataPoint(`${versionUrl}/profile/${profileId}/intents/${intentId}/responses`), 
 
 };
