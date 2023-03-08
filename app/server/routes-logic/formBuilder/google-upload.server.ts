@@ -1,32 +1,60 @@
-import { Readable } from 'stream';
-import { Storage } from '@google-cloud/storage';
-import { UploadHandler } from '@remix-run/node';
+import type { File } from "@google-cloud/storage";
+import { UploadHandler } from "@remix-run/node";
+import { FileUploadHandlerFilterArgs } from "@remix-run/node/dist/upload/fileUploadHandler";
+import type { Readable } from "stream";
 
-const uploadStreamToCloudStorage = async (fileStream: Readable, fileName: string) => {
-  const bucketName = 'YOUR_BUCKET_NAME';
+// TODO from Remix once types available
+export declare type UploadHandlerArgs = {
+  name: string;
+  stream: Readable;
+  filename: string;
+  encoding: string;
+  mimetype: string;
+};
 
-  // Create Cloud Storage client
-  const cloudStorage = new Storage();
+// TODO from Remix once types available
+// export declare type UploadHandler = (
+//   args: UploadHandlerArgs
+// ) => Promise<string | File | undefined>;
 
-  // Create a reference to the file.
-  const file = cloudStorage.bucket(bucketName).file(fileName);
+export type FirebaseStorageUploadHandler = {
+  file(args: UploadHandlerArgs): File;
+  filter?(args: FileUploadHandlerFilterArgs): boolean | Promise<boolean>;
+};
 
-  async function streamFileUpload() {
-    fileStream.pipe(file.createWriteStream()).on('finish', () => {
-      // The file upload is complete
+export default function createFirebaseStorageFileHandler({
+  file,
+  filter,
+}: FirebaseStorageUploadHandler): UploadHandler {
+  return async (args) => {
+    const { stream, encoding, mimetype } = args;
+
+    if (filter && !(await filter(args))) {
+      stream.resume();
+      return;
+    }
+
+    // Get the file as a buffer
+    const chunks: Buffer[] = [];
+    for await (const chunk of stream) chunks.push(chunk);
+    const buffer = Buffer.concat(chunks);
+
+    const instance = file(args);
+
+    // Save the Buffer to the file
+    await instance.save(buffer);
+
+    // Add the known content type to the file
+    await instance.setMetadata({
+      "Content-Type": mimetype,
+      "Content-Encoding": encoding,
     });
 
-    console.log(`${fileName} uploaded to ${bucketName}`);
-  }
+    // Make the file publicly readable - maintain other permissions
+    // https://googleapis.dev/nodejs/storage/latest/File.html#makePublic
+    await instance.makePublic();
 
-  streamFileUpload().catch(console.error);
-
-  return fileName;
-};
-
-export const cloudStorageUploaderHandler: UploadHandler = async ({
-  filename,
-  stream: fileStream,
-}) => {
-  return await uploadStreamToCloudStorage(fileStream, filename);
-};
+    // Return the public URL
+    return instance.publicUrl();
+  };
+}

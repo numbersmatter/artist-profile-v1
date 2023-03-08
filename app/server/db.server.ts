@@ -56,6 +56,9 @@ export interface IntentDoc {
 export interface ResponseDoc {
   fieldResponses: {[key:string]:string}
 }
+export interface ImgUploadDoc {
+  imgList: string[]
+}
 
 const versionUrl = "testCollection/version6"
 
@@ -69,5 +72,6 @@ export const db = {
   intents: (profileId:string) => dataPoint<IntentDoc>(`${versionUrl}/profile/${profileId}/intents`),
   questions: (profileId:string) => dataPoint<Questionform>(`${versionUrl}/profile/${profileId}/questions`),
   responses: (profileId: string, intentId:string)=> dataPoint<ResponseDoc>(`${versionUrl}/profile/${profileId}/intents/${intentId}/responses`), 
+  imgUploads: (profileId: string, intentId:string)=> dataPoint<ImgUploadDoc>(`${versionUrl}/profile/${profileId}/intents/${intentId}/imgUploads`), 
 
 };

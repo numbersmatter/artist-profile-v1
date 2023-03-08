@@ -75,7 +75,41 @@ export const saveMilaResponse = async (
 
   return writeResult;
 };
+export const saveMilaImageUpload = async (
+  profileId: string,
+  intentId: string,
+  stepId: string,
+  imgUrl: string
+) => {
+  const responseDocRef = db.imgUploads(profileId, intentId).doc(stepId);
+  const writeData = {
+    imgList: FieldValue.arrayUnion(imgUrl)
+  }
 
+  //  @ts-ignore
+  const writeResult = await responseDocRef.update(writeData);
+
+  return writeResult;
+};
+
+
+
+
+export const readMilaImageUpload =async (  
+  profileId: string,
+  intentId: string,
+  stepId: string,
+) => {
+  const responseRef = db.imgUploads(profileId, intentId).doc(stepId);
+  const responseSnap = await responseRef.get();
+  const responseData = responseSnap.data();
+
+  if(!responseData){
+    return undefined;
+  }
+
+  return responseData;
+}
 export const readMilaResponse =async (  
   profileId: string,
   intentId: string,

@@ -8,7 +8,7 @@ cloudinary.v2.config({
 });
 
 async function uploadImage(referenceId: string, data: AsyncIterable<Uint8Array>) {
-  const uploadPromise = new Promise(async (resolve, reject) => {
+  const uploadPromise = new Promise<cloudinary.UploadApiResponse>(async (resolve, reject) => {
     const uploadStream = cloudinary.v2.uploader.upload_stream(
       {
         folder: `${referenceId}`,
