@@ -1,5 +1,5 @@
 import { json, LoaderArgs } from "@remix-run/node";
-import { useLoaderData, useParams } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { readIntentDoc } from "~/server/mila.server";
 import { getParams } from "~/server/routes-logic/profile/profile.server";
 
