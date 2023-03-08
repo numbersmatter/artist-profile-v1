@@ -48,6 +48,7 @@ export interface IntentDoc {
   humanReadableId: string,
   opportunityId:string,
   status: "in-progress" | "submitted";
+  submittedAt?: Timestamp,
   questionOrder: string[];
   questionStatus: {[key:string]: boolean}
 }

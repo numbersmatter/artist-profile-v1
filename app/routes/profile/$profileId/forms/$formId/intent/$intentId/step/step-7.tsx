@@ -2,7 +2,7 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { z } from "zod";
-import { readMilaResponse, saveMilaResponse } from "~/server/mila.server";
+import { readMilaResponse, saveMilaResponse, submitIntent } from "~/server/mila.server";
 import type { Field } from "~/server/routes-logic/formBuilder/types";
 import QuestionPanel from "~/server/routes-logic/formBuilder/ui/elements/QuestionPanel";
 import StackedField from "~/server/routes-logic/formBuilder/ui/elements/StackedField";
@@ -28,8 +28,10 @@ export async function action({ params, request }: ActionArgs) {
 
     return message;
   } else {
-    const writeResult = await saveMilaResponse(profileId, intentId, stepId, checkSchema.data)
-    const redirectUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-7`
+    await saveMilaResponse(profileId, intentId, stepId, checkSchema.data)
+    await submitIntent(profileId, intentId)
+
+    const redirectUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/status`
 
     return redirect(redirectUrl);
   }

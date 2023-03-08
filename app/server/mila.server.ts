@@ -27,6 +27,38 @@ export const createMilaIntent = async (
   return { ...writeResult, intentId: intentRef.id };
 };
 
+export const readIntentDoc =async (
+  profileId:string,
+  intentId: string,
+) => {
+  const intentRef = db.intents(profileId).doc(intentId);
+  const intentSnap = await intentRef.get();
+  const intentData = intentSnap.data();
+  
+  if(!intentData){
+    return undefined;
+  }
+
+  return { ...intentData, intentId}
+};
+
+
+export const submitIntent = async (
+  profileId:string,
+  intentId: string,
+) => {
+  // setFrom status to submitted
+  // 1 get intent ref
+  const intentRef = db.intents(profileId).doc(intentId)
+  const updateData ={
+    status:"submitted",
+    submittedAt: FieldValue.serverTimestamp(),
+  }
+
+  // @ts-ignore
+  return await  intentRef.update(updateData);
+}
+
 
 
 export const saveMilaResponse = async (
