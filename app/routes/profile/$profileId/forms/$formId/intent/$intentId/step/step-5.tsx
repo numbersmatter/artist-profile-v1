@@ -14,14 +14,14 @@ export async function action({ params, request }: ActionArgs) {
   const formValues = Object.fromEntries(await request.formData());
   const { profileId, intentId, formId } = getParams(params);
 
-  const stepId = "step-3"
+  const stepId = "step-5"
   const QuestionCreateSchema = z.object({
-    charArea: z.string(),
+    charActions: z.string(),
   })
 
   const checkSchema = QuestionCreateSchema.safeParse(formValues);
   if (!checkSchema.success) {
-    const rawMessage = checkSchema.error.issues.find((error) => error.path[0] === "charArea")?.message
+    const rawMessage = checkSchema.error.issues.find((error) => error.path[0] === "charActions")?.message
 
     const message = rawMessage ?? "There was an error."
 
@@ -29,7 +29,7 @@ export async function action({ params, request }: ActionArgs) {
     return message;
   } else {
     const writeResult = await saveMilaResponse(profileId, intentId, stepId, checkSchema.data)
-    const redirectUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-5`
+    const redirectUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-6`
 
     return redirect(redirectUrl);
   }
@@ -44,28 +44,28 @@ export async function loader({ params }: LoaderArgs) {
 
   const stepId = "step-5"
   const responseDoc = await readMilaResponse(profileId, intentId, stepId)
-  const fieldResponses = responseDoc ? responseDoc.fieldResponses :{ charArea:""}
-  const savedResponse = fieldResponses["charArea"]
+  const fieldResponses = responseDoc ? responseDoc.fieldResponses :{ charActions:""}
+  const savedResponse = fieldResponses["charActions"]
 
 
 
-  const questionName = "Character References";
+  const questionName = "Character Actions";
 
-  const questionText = "Here you can upload images or you can put links to your character references here. You don't need to link anything if you already uploaded a reference in another question. If so, you can put their names here. You don't need to put a reference if you want a character to be anonymous or one of my characters.";
+  const questionText = "What are the characters doing? You can save describing background detail for the next questions.";
 
   const question = {
     name: questionName,
     text: questionText,
   }
 
-  const characterRef: Field = {
-    fieldId: "charArea",
+  const charActions: Field = {
+    fieldId: "charActions",
     type: "longText",
-    label: "Character Reference Details",
+    label: "Describe Action",
     
   }
 
-  const fields: Field[] = [characterRef];
+  const fields: Field[] = [charActions];
 
   const backUrl =
   `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-4`
@@ -77,7 +77,7 @@ export async function loader({ params }: LoaderArgs) {
 
 
 
-export default function Step3() {
+export default function Step5() {
   const { question, fields, backUrl, savedResponse } = useLoaderData<typeof loader>();
   const actionData = useActionData();
   return (

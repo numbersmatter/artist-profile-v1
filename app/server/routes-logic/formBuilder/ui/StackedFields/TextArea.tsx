@@ -27,8 +27,9 @@ export default function TextAreaField(
       </div>
       {
         props.errorText ?
-        <p className="mt-2 text-sm text-gray-500">Write a few sentences about yourself.</p>
+        <p className="mt-2 text-sm text-red-600"> {props.errorText}</p>
         :<p> &nbsp;</p>
       }
+
     </div>);
 }

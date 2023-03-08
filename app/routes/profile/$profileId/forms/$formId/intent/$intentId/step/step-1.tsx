@@ -11,7 +11,18 @@ import FormButtons from "~/server/routes-logic/set-profile/ui/forms/FormButtons"
 
 
 export async function action({ params, request }: ActionArgs) {
-  const formValues = Object.fromEntries(await request.formData());
+  // const formValues = Object.fromEntries(await request.formData());
+  // I need to trim whitespace from email functions
+
+  const formData = await request.formData();
+  const emailRaw = formData.get("email") as string;
+
+  const emailTrimmed = emailRaw.trim()
+
+  const formValues = {
+    email: emailTrimmed
+  }
+
   const { profileId, intentId,  formId } = getParams(params);
 
   const stepId = "step-1"
