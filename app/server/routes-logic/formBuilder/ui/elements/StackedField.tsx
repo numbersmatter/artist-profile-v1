@@ -43,6 +43,14 @@ export default function StackedField(
       label={field.label}
       options={options}
       />
+    case "email":
+      return <TextField 
+      errorText={errorText} 
+      defaultValue={defaultValue}
+      fieldId={field.fieldId}
+      label={field.label}
+      />;
+     
     default:
       return <div><p>Something went wrong</p></div>
 

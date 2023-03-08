@@ -52,6 +52,10 @@ export interface IntentDoc {
   questionStatus: {[key:string]: boolean}
 }
 
+export interface ResponseDoc {
+  fieldResponses: {[key:string]:string}
+}
+
 const versionUrl = "testCollection/version6"
 
 
@@ -63,6 +67,6 @@ export const db = {
   opportunites: (profileId:string) =>dataPoint<Opportunity>(`${versionUrl}/profile/${profileId}/opportunities`),
   intents: (profileId:string) => dataPoint<IntentDoc>(`${versionUrl}/profile/${profileId}/intents`),
   questions: (profileId:string) => dataPoint<Questionform>(`${versionUrl}/profile/${profileId}/questions`),
-  responses: (profileId: string, intentId:string)=> dataPoint(`${versionUrl}/profile/${profileId}/intents/${intentId}/responses`), 
+  responses: (profileId: string, intentId:string)=> dataPoint<ResponseDoc>(`${versionUrl}/profile/${profileId}/intents/${intentId}/responses`), 
 
 };

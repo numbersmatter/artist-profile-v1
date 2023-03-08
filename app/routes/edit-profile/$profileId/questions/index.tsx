@@ -34,6 +34,13 @@ export default function QuestionsList() {
           
           )
       }
+      <li>
+        <Link
+          to={`create-question`}
+        >
+          Create New Question
+        </Link>
+      </li>
       </ul>
     </article>
   );

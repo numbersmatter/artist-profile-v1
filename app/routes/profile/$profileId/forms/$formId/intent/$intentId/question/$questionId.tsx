@@ -7,7 +7,7 @@ import QuestionPanel from "~/server/routes-logic/formBuilder/ui/elements/Questio
 import StackedField from "~/server/routes-logic/formBuilder/ui/elements/StackedField";
 import FormButtons from "~/server/routes-logic/formBuilder/ui/forms/FormButtons";
 import TextField from "~/server/routes-logic/formBuilder/ui/StackedFields/TextField";
-import { createZodFromField, getQuestionById, getResponseById, writeUserResponse } from "~/server/routes-logic/profile/profile.server";
+import { createZodFromField, getQuestionById, getResponseById,  } from "~/server/routes-logic/profile/profile.server";
 
 
 export async function action({ params, request }: ActionArgs) {
@@ -36,9 +36,9 @@ export async function action({ params, request }: ActionArgs) {
     return checkValues.error
   }
 
-  const writeResult = await writeUserResponse(profileId, intentId, questionId, checkValues.data)
+  // const writeResult = await writeUserResponse(profileId, intentId, questionId, checkValues.data)
 
-  return json({ writeResult });
+  // return json({ writeResult });
 }
 
 
@@ -58,7 +58,7 @@ export async function loader({ params }: LoaderArgs) {
   }
 
 
-  const fieldValues: { [key: string]: string } = response ?? {};
+  const fieldValues: { [key: string]: string } = response?.fieldResponses ?? {};
 
   const fieldObj = question.fieldObj
 

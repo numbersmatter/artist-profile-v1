@@ -48,55 +48,54 @@ export const getOpenOpportunities = async (profileId: string) => {
 export const createNewIntent = async (
   profileId: string,
   opportunityId: string,
-  questionStatus: {[key:string]: boolean},
-  questionOrder: string[],
+  questionStatus: { [key: string]: boolean },
+  questionOrder: string[]
 ) => {
   const intentRef = db.intents(profileId).doc();
-  
+
   const defaultData = {
     opportunityId: opportunityId,
     createdAt: FieldValue.serverTimestamp(),
     humanReadableId: hri.hri.random(),
     status: "in-progress",
     questionOrder: questionOrder,
-    questionStatus: questionStatus
+    questionStatus: questionStatus,
   };
-  
+
   //  @ts-expect-error
   const writeResult = await intentRef.create(defaultData);
-  
+
   return { ...writeResult, intentId: intentRef.id };
 };
 
-export const getIntentById = async ( profileId:string, intentId:string ) =>{
+export const getIntentById = async (profileId: string, intentId: string) => {
   const intentRef = db.intents(profileId).doc(intentId);
   const intentSnap = await intentRef.get();
   const intentData = intentSnap.data();
 
-  if(!intentData){
+  if (!intentData) {
     return undefined;
   }
 
-  return {...intentData, intentId}
-}
+  return { ...intentData, intentId };
+};
 
-export const makeQuestion = async(
-  profileId:string,
-  data: {name:string, text:string}
-)=>{
+export const makeQuestion = async (
+  profileId: string,
+  data: { name: string; text: string }
+) => {
   const newQuestRef = db.questions(profileId).doc();
 
   const writeData = {
     ...data,
     fieldOrder: [],
     fieldObj: {},
-  }
+  };
 
-  const writequestion = await newQuestRef.create(writeData)
+  const writequestion = await newQuestRef.create(writeData);
 
-  return { ...writequestion, questionId:newQuestRef.id }
-}
-
+  return { ...writequestion, questionId: newQuestRef.id };
+};
 
 export const getQuestionById = async (
   profileId: string,
@@ -106,102 +105,141 @@ export const getQuestionById = async (
   const questionSnap = await questionRef.get();
   const questionData = questionSnap.data();
 
-  if(!questionData){
+  if (!questionData) {
     return undefined;
   }
 
-  return { ...questionData, questionId}
+  return { ...questionData, questionId };
 };
 
-export const getAllQuestions =async (profileId:string) => {
+export const getAllQuestions = async (profileId: string) => {
   const allQuestionsRef = db.questions(profileId);
-  const allQuestionsSnap = await allQuestionsRef.get(); 
-  const allQuestions = allQuestionsSnap.docs.map((snap)=>({...snap.data(), questionId: snap.id}))
-  
-  return allQuestions;
-}
+  const allQuestionsSnap = await allQuestionsRef.get();
+  const allQuestions = allQuestionsSnap.docs.map((snap) => ({
+    ...snap.data(),
+    questionId: snap.id,
+  }));
 
-export const getResponseById =async ( profileId: string, intentId: string, questionId: string ) => {
+  return allQuestions;
+};
+
+export const makeField = async (
+  profileId: string,
+  questionId: string,
+  fieldData: {label:string, type:string}
+) => {
+  const fieldId = db.questions(profileId).doc().id;
+  const questionRef = db.questions(profileId).doc(questionId);
+
+  const questionSnap  = await questionRef.get();
+  const questionData = questionSnap.data();
+
+  if(!questionData){
+    throw new Response("error occurred", {status:404})
+  }
+
+  
+  const newFieldObj = { ...questionData.fieldObj, [fieldId]: fieldData};
+  const newFieldOrder = [...questionData.fieldOrder, fieldId];
+
+  // @ts-ignore
+  const writeResult = questionRef.update({ fieldObj:newFieldObj , fieldOrder:newFieldOrder})
+
+
+  return {  fieldId}
+
+};
+
+export const getResponseById = async (
+  profileId: string,
+  intentId: string,
+  questionId: string
+) => {
   const responseDocRef = db.responses(profileId, intentId).doc(questionId);
   const responseDocSnap = await responseDocRef.get();
   const responseData = responseDocSnap.data();
 
-  if(!responseData){
+  if (!responseData) {
     return undefined;
-  };
+  }
 
-  return { ...responseData, questionId}
-}
+  return { ...responseData, questionId };
+};
 
-export const createZodFromField = ( field:Field)=>{
-
-  if(field.type in ["shortText", "longText"]){
-    return z.string();
-  };
-
-  if( field.type === "select"){
-    const options = field.options ?? []
-    const validOptions = options.map((option)=> option.value);
-    const validLabels = options.map((option)=>option.label);
+export const createZodFromField = (field: Field) => {
+  if (field.type in ["shortText", "longText"]) {
     return z.string();
   }
 
-
-
+  if (field.type === "select") {
+    const options = field.options ?? [];
+    const validOptions = options.map((option) => option.value);
+    const validLabels = options.map((option) => option.label);
+    return z.string();
+  }
 
   return z.string();
-
-}
-
-
-export const writeUserResponse = async ( profileId: string, intentId: string, questionId: string, data:{[key:string]: string} ) => {
-  const responseDocRef = db.responses(profileId, intentId).doc(questionId);
-
-  const writeResult = await responseDocRef.set(data);
-
-  return writeResult;
-}
+};
 
 
-export const getRequestIdRedirectUrl =async (profileId:string, formId:string, intentId:string) => {
 
+
+
+// export const writeUserResponse = async (
+//   profileId: string,
+//   intentId: string,
+//   questionId: string,
+//   data: { [key: string]: string }
+// ) => {
+//   const responseDocRef = db.responses(profileId, intentId).doc(questionId);
+
+//   // const writeResult = await responseDocRef.set(data);
+
+//   // return writeResult;
+// };
+
+export const getRequestIdRedirectUrl = async (
+  profileId: string,
+  formId: string,
+  intentId: string
+) => {
   const intentDoc = await getIntentById(profileId, intentId);
 
-  if(!intentDoc){
+  if (!intentDoc) {
     return undefined;
-  };
+  }
 
-  if(intentDoc.status === "submitted"){
+  if (intentDoc.status === "submitted") {
     const submittedUrl = `submitted`;
     return submittedUrl;
-  };
+  }
 
   const nextNonCompletedQuestion = intentDoc.questionOrder.find(
-    (questionId)=> intentDoc.questionStatus[questionId] === false
+    (questionId) => intentDoc.questionStatus[questionId] === false
   );
 
-  if(!nextNonCompletedQuestion){
+  if (!nextNonCompletedQuestion) {
     const reviewBeforeSubmitUrl = `review`;
     return reviewBeforeSubmitUrl;
-  };
-  
+  }
+
   // const nextQuestionUrl = `/requests/${requestId}/questions/${nextNonCompletedQuestion}`;
 
   return nextNonCompletedQuestion;
 };
 
-
-export const getParams = (params: Params<string>)=>{
+export const getParams = (params: Params<string>) => {
   const profileId = params.profileId ?? "no-profileId";
   const questionId = params.questionId ?? "no-questionId";
   const formId = params.formId ?? "no-formId";
-
-
+  const intentId = params.intentId ?? "no-intentId";
+  const stepId = params.stepId ?? "no-stepId";
 
   return {
     profileId,
     questionId,
     formId,
-
-  }
-}
+    intentId,
+    stepId,
+  };
+};

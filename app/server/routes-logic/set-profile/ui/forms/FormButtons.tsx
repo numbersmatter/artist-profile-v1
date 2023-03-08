@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 
 
-export default function FormButtons({ cancelUrl }:{ cancelUrl:string}) {
+export default function FormButtons({ cancelUrl, next }:{ cancelUrl:string, next:string}) {
 
   return (
     <div className="py-3 flex justify-end">
@@ -17,7 +17,7 @@ export default function FormButtons({ cancelUrl }:{ cancelUrl:string}) {
         type="submit"
         className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
       >
-        Save
+        { next}
       </button>
     </div>
 
