@@ -56,8 +56,14 @@ export interface IntentDoc {
 export interface ResponseDoc {
   fieldResponses: {[key:string]:string}
 }
+
+export interface ImageObject {
+  url: string,
+  description: string,
+  imageId: string,
+}
 export interface ImgUploadDoc {
-  imgList: string[]
+  imgList: ImageObject[]
 }
 
 const versionUrl = "testCollection/version6"

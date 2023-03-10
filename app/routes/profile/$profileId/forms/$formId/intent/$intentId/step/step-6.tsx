@@ -18,7 +18,7 @@ export async function action({ params, request }: ActionArgs) {
 
   const stepId = "step-6"
   const DetailsNotRequired = z.object({
-    detailLevel: z.enum(["simple", "complex"]),
+    detailLevel: z.enum(["simple", "detailed"] ),
     backgroundType: z.enum(["bedroom", "forest", "clawfee", "bathroom", "nightclub", "beach", "other"]),
     backgroundDetails: z.string(),
   })

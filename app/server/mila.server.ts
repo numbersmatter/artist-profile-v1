@@ -1,5 +1,5 @@
 import { FieldValue } from "firebase-admin/firestore";
-import { db } from "./db.server";
+import { db, ImageObject } from "./db.server";
 // @ts-ignore
 import * as hri from "human-readable-ids";
 
@@ -79,11 +79,23 @@ export const saveMilaImageUpload = async (
   profileId: string,
   intentId: string,
   stepId: string,
-  imgUrl: string
+  imageObj:  {
+    url: string,
+    description: string,
+  }
 ) => {
   const responseDocRef = db.imgUploads(profileId, intentId).doc(stepId);
+
+  const imageId = db.profile().doc().id
+
+  const imageData = {
+    ...imageObj,
+    imageId
+  }
+  
+  
   const writeData = {
-    imgList: FieldValue.arrayUnion(imgUrl)
+    imgList: FieldValue.arrayUnion(imageData)
   }
 
   //  @ts-ignore

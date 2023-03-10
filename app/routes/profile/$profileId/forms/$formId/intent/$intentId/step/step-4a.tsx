@@ -1,15 +1,20 @@
+import { ArrowUpTrayIcon } from "@heroicons/react/20/solid";
 import type { ActionArgs, LoaderArgs, UploadHandler } from "@remix-run/node";
 import { unstable_composeUploadHandlers, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node";
 import {
   json,
   // redirect 
 } from "@remix-run/node";
-import { Form, useActionData, useLoaderData, useTransition } from "@remix-run/react";
+import { Form, useActionData, useLoaderData, useSubmit, useTransition } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
 // import { FieldValue } from "firebase-admin/firestore";
 // import { z } from "zod";
 import { readMilaImageUpload, saveMilaImageUpload, } from "~/server/mila.server";
 import { uploadImage } from "~/server/routes-logic/formBuilder/cloudinary.server";
+import FormButtons from "~/server/routes-logic/formBuilder/ui/elements/FormButtons";
+import Modal from "~/server/routes-logic/formBuilder/ui/elements/Modal";
+import TextField from "~/server/routes-logic/formBuilder/ui/StackedFields/TextField";
+
 // import type { Field } from "~/server/routes-logic/formBuilder/types";
 // import QuestionPanel from "~/server/routes-logic/formBuilder/ui/elements/QuestionPanel";
 // import StackedField from "~/server/routes-logic/formBuilder/ui/elements/StackedField";
@@ -29,7 +34,7 @@ export async function action({ params, request }: ActionArgs) {
       if (name !== "img") {
         return undefined;
       }
-      if(!data){
+      if (!data) {
         return undefined
       }
 
@@ -41,16 +46,18 @@ export async function action({ params, request }: ActionArgs) {
 
   const formData = await unstable_parseMultipartFormData(request, uploadHandler);
   const imgSrc = formData.get("img") as string;
-  const imgDesc = formData.get("desc");
+  const imgDesc = formData.get("desc") as string;
   if (!imgSrc) {
     return json({ error: "something wrong" });
   }
 
 
 
-  await saveMilaImageUpload(profileId, intentId, "step-4a", imgSrc)
+  await saveMilaImageUpload(profileId, intentId, "step-4a", { url: imgSrc, description: imgDesc })
 
-  return json({ imgDesc, imgSrc });
+  const imageUploadedText = `${imgDesc} uploaded`
+
+  return json({ imageUploadedText });
 };
 
 // export async function actionOld({ params, request }: ActionArgs) {
@@ -120,76 +127,181 @@ export async function loader({ params }: LoaderArgs) {
 
 
 export default function Step4a() {
-  const [filesPresent, setFilesPresent ] = useState<boolean>(false)
+  const [filesPresent, setFilesPresent] = useState<boolean>(false);
+  const [open, setOpen] = useState(false)
+  const [fileName, setFileName] = useState<string>("")
+
+  const cancelButtonRef = useRef(null)
   const {
-    // question, 
-    // backUrl, 
+    question,
+    backUrl,
     imgsUploaded,
   } = useLoaderData<typeof loader>();
+
   const actionData = useActionData();
   let transition = useTransition();
-  let isUploading = transition.state =="submitting"
+  let submit = useSubmit();
+  let isUploading = transition.state !== "idle"
 
   let formRef = useRef()
 
-  useEffect(()=>{
-    if(!isUploading){
+  useEffect(() => {
+    if (filesPresent && formRef.current) {
+      submit(formRef.current)
+    }
+  }, [filesPresent, submit])
+
+  useEffect(() => {
+    if (!isUploading) {
       // @ts-ignore
       formRef.current?.reset()
+      setFileName("")
       setFilesPresent(false)
+      setOpen(false)
     }
-  },[isUploading])
+  }, [isUploading])
 
 
-  const checkFilesPresent= (e:React.ChangeEvent<HTMLInputElement> )=>{
+  const checkFilesPresent = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault()
     const filesArray = e.currentTarget.files ?? []
     const areFiles = filesArray.length > 0
 
-    if(areFiles){
+    if (areFiles) {
+      setFileName(filesArray[0].name)
+
       return setFilesPresent(true)
     }
 
     return setFilesPresent(false)
   }
 
+
+  const openModel = () => {
+    setOpen(true)
+  }
+  const closeModel = () => {
+    setOpen(false)
+  }
+
   console.log(imgsUploaded)
 
 
   return (
-    <div className="overflow-hidden bg-white shadow sm:rounded-lg">
-    <div className="px-4 py-5 sm:p-6">{/* Content goes here */}
-{/* @ts-ignore */}
-      <Form ref={formRef} method="post" encType="multipart/form-data">
-        {actionData ? <p>{JSON.stringify(actionData)}</p> : <p>
-        </p>}
-        <label htmlFor="img-field">Image to upload</label>
-        <input onChange={(e) => checkFilesPresent(e) } id="img-field" type="file" name="img" accept="image/*" />
-        <label htmlFor="img-desc">Image description</label>
-        <input id="img-desc" type="text" name="desc" />
-        {
-          filesPresent 
-          ? <button type="submit">Upload Image</button>
-          : <p>Choose a file for upload button to appear</p>
-        }
-      </Form>
-      <ul 
-        className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
-        >
-        {imgsUploaded.map((url) => (
-          <li key={url} className="relative">
-            <div className="group aspect-w-10 aspect-h-7 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
-              <img src={url} alt="" className="pointer-events-none object-cover group-hover:opacity-75" />
-              <button type="button" className="absolute inset-0 focus:outline-none">
-                <span className="sr-only">View details</span>
-              </button>
+    <div className="max-w-2xl pb-5">
+      <div className="max-w-2xl pb-5">
+        <div className="bg-white  px-4 py-5 shadow sm:rounded-lg sm:p-6">
+          <div className="space-y-8 divide-y divide-gray-200">
+            <div>
+              <div>
+                <h3 className="text-2xl font-semibold leading-6 text-gray-900">
+                  {question.name}
+                </h3>
+                <p className="mt-1 text-base text-gray-500">
+                  {question.text}
+                </p>
+              </div>
+              <div className="">
+              
+                {/* <div className=" inset-0 flex items-center justify-center">
+                  <button
+                    type="button"
+                    onClick={openModel}
+                    className="rounded-md bg-black bg-opacity-20 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                  >
+                    Open dialog
+                  </button>
+                </div>
+                <Modal
+                  open={open}
+                  onClose={setOpen}
+                  cancelButtonRef={cancelButtonRef}
+                > */}
+
+
+                {/* @ts-ignore */}
+                <Form ref={formRef} method="post" encType="multipart/form-data" >
+                  {actionData ? <p>{JSON.stringify(actionData)}</p> : <p>
+                  </p>}
+                  <fieldset className="grid grid-cols-1 py-3">
+                    <div className="mx-auto">
+
+                    <label className=" max-w-xs inline-flex items-center border-2 gap-x-4 rounded-md bg-orange-500 py-2.5 px-3.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 hover:border-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" htmlFor="img-field">
+                      <ArrowUpTrayIcon className="h-6 w-6 text-white" aria-hidden="true" />
+                      <input className="hidden"
+                        onChange={(e) => checkFilesPresent(e)} id="img-field" type="file" name="img" accept="image/*" />
+                     {    } Upload Image
+                    </label>
+                        </div>
+
+
+                    <div className="">
+                      <div className="mt-2">
+                        <input
+                          id="desc"
+                          name="desc"
+                          className="hidden"
+                          value={fileName}
+                        />
+                      </div>
+                    </div>
+
+                  </fieldset>
+                  {/* <div className="py-3 flex justify-end">
+                    {
+                      filesPresent
+                        ? <button type="submit"
+                          className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+
+                        >Upload Image</button>
+                        : <p>Choose a file for upload button to appear</p>
+                    }
+
+                  </div> */}
+                </Form>
+                {/* </Modal> */}
+                <div className="py-4">
+                  <h4 className="text-xl text-slate-700">Uploaded Images</h4>
+                  <p>Uploaded Images Appear here. If you do not see your image it did not upload currently </p>
+                  <ul
+                    className=" pt-2 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
+                  >
+                    {imgsUploaded.map((imageData
+                    ) => (
+                      <li key={imageData.url} className="relative">
+                        <div className="group aspect-w-10 aspect-h-7 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
+                          <img src={imageData.url} alt="" className="pointer-events-none object-cover group-hover:opacity-75" />
+                          <button type="button" className="absolute inset-0 focus:outline-none">
+                            <span className="sr-only">View details</span>
+                          </button>
+                        </div>
+                        <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">{imageData.description}</p>
+                        <p className="pointer-events-none block text-sm font-medium text-gray-500">size</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+
+
+
+
+
+
+
+
+              </div>
             </div>
-            <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">file</p>
-            <p className="pointer-events-none block text-sm font-medium text-gray-500">size</p>
-          </li>
-        ))}
-      </ul>
+          </div>
         </div>
+
+
+        <FormButtons cancelUrl={backUrl} />
+      </div>
+
+
+
     </div>
+
   );
 }
