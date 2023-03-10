@@ -104,6 +104,25 @@ export const saveMilaImageUpload = async (
   return writeResult;
 };
 
+export const deleteMilaImageUpload = async (
+  profileId: string,
+  intentId: string,
+  stepId: string,
+  imageData: { imageId: string, description: string, url:string},
+) => {
+  const responseDocRef = db.imgUploads(profileId, intentId).doc(stepId);
+  
+  
+  const writeData = {
+    imgList: FieldValue.arrayRemove(imageData)
+  }
+
+  //  @ts-ignore
+  const writeResult = await responseDocRef.update(writeData);
+
+  return writeResult;
+};
+
 
 
 

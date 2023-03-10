@@ -1,4 +1,5 @@
 import { ArrowUpTrayIcon } from "@heroicons/react/20/solid";
+import { XCircleIcon } from "@heroicons/react/24/outline";
 import type { ActionArgs, LoaderArgs, UploadHandler } from "@remix-run/node";
 import { unstable_composeUploadHandlers, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node";
 import {
@@ -7,23 +8,14 @@ import {
 } from "@remix-run/node";
 import { Form, useActionData, useLoaderData, useSubmit, useTransition } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
-// import { FieldValue } from "firebase-admin/firestore";
-// import { z } from "zod";
-import { readMilaImageUpload, saveMilaImageUpload, } from "~/server/mila.server";
+import { deleteMilaImageUpload, readMilaImageUpload, saveMilaImageUpload, } from "~/server/mila.server";
 import { uploadImage } from "~/server/routes-logic/formBuilder/cloudinary.server";
 import FormButtons from "~/server/routes-logic/formBuilder/ui/elements/FormButtons";
-import Modal from "~/server/routes-logic/formBuilder/ui/elements/Modal";
-import TextField from "~/server/routes-logic/formBuilder/ui/StackedFields/TextField";
 
-// import type { Field } from "~/server/routes-logic/formBuilder/types";
-// import QuestionPanel from "~/server/routes-logic/formBuilder/ui/elements/QuestionPanel";
-// import StackedField from "~/server/routes-logic/formBuilder/ui/elements/StackedField";
 import { getParams } from "~/server/routes-logic/profile/profile.server";
-// import FormButtons from "~/server/routes-logic/set-profile/ui/forms/FormButtons";
 
 
 
-// const stepId = "step-4"
 
 
 
@@ -44,47 +36,20 @@ export async function action({ params, request }: ActionArgs) {
     unstable_createMemoryUploadHandler()
   );
 
-  const formData = await unstable_parseMultipartFormData(request, uploadHandler);
-  const imgSrc = formData.get("img") as string;
-  const imgDesc = formData.get("desc") as string;
-  if (!imgSrc) {
-    return json({ error: "something wrong" });
-  }
+    const formData = await unstable_parseMultipartFormData(request, uploadHandler);
+
+    const imgSrc = formData.get("img") as string;
+    const imgDesc = formData.get("desc") as string;
+    if (!imgSrc) {
+      return json({ error: "something wrong" });
+    }
+
+    await saveMilaImageUpload(profileId, intentId, "step-4a", { url: imgSrc, description: imgDesc })
+    const imageUploadedText = `${imgDesc} uploaded`
+    return json({ imageUploadedText });
 
 
-
-  await saveMilaImageUpload(profileId, intentId, "step-4a", { url: imgSrc, description: imgDesc })
-
-  const imageUploadedText = `${imgDesc} uploaded`
-
-  return json({ imageUploadedText });
 };
-
-// export async function actionOld({ params, request }: ActionArgs) {
-//   const formValues = Object.fromEntries(await request.formData());
-//   const { profileId, intentId, formId } = getParams(params);
-
-
-//   const QuestionCreateSchema = z.object({
-//     charArea: z.string(),
-//   })
-
-//   const checkSchema = QuestionCreateSchema.safeParse(formValues);
-//   if (!checkSchema.success) {
-//     const rawMessage = checkSchema.error.issues.find((error) => error.path[0] === "charArea")?.message
-
-//     const message = rawMessage ?? "There was an error."
-
-
-//     return message;
-//   } else {
-//     //  @ts-ignore
-//     const writeResult = await saveMilaResponse(profileId, intentId, stepId, checkSchema.data)
-//     const redirectUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-5`
-
-//     return redirect(redirectUrl);
-//   }
-// }
 
 
 
@@ -92,10 +57,12 @@ export async function loader({ params }: LoaderArgs) {
   const { profileId, formId, intentId } = getParams(params);
 
 
+  const stepId = "step-4a"
   const imagesUploadDoc = await readMilaImageUpload(profileId, intentId, "step-4a")
   const imgsUploaded = imagesUploadDoc ? imagesUploadDoc.imgList : []
 
 
+  const deleteImageUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/${stepId}/deleteImage`
 
 
   const questionName = "Character References";
@@ -120,10 +87,13 @@ export async function loader({ params }: LoaderArgs) {
     `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-3`
 
 
-  return json({ question, backUrl, imgsUploaded, });
+  return json({ question, backUrl, imgsUploaded, deleteImageUrl });
 }
 
 
+const regularClass = " inline-flex items-center border-2 gap-x-4 rounded-md bg-orange-500 py-2.5 px-3.5 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 hover:border-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+
+const disabledClass = " inline-flex items-center border-2 gap-x-4 rounded-md bg-slate-500 py-2.5 px-3.5 text-sm font-semibold text-white"
 
 
 export default function Step4a() {
@@ -136,18 +106,22 @@ export default function Step4a() {
     question,
     backUrl,
     imgsUploaded,
+    deleteImageUrl
   } = useLoaderData<typeof loader>();
 
   const actionData = useActionData();
   let transition = useTransition();
   let submit = useSubmit();
-  let isUploading = transition.state !== "idle"
+  let isUploading = 
+    transition.state === "submitting" && 
+    transition.submission?.formData.get("_action") === "uploadImage"
 
-  let formRef = useRef()
+  let formRef = useRef();
+  let fileInputRef = useRef(null);
 
   useEffect(() => {
     if (filesPresent && formRef.current) {
-      submit(formRef.current)
+      submit(formRef.current, {})
     }
   }, [filesPresent, submit])
 
@@ -176,15 +150,10 @@ export default function Step4a() {
     return setFilesPresent(false)
   }
 
-
-  const openModel = () => {
-    setOpen(true)
+  const openFileInput = () => {
+    // @ts-ignore
+    fileInputRef.current.click()
   }
-  const closeModel = () => {
-    setOpen(false)
-  }
-
-  console.log(imgsUploaded)
 
 
   return (
@@ -202,7 +171,7 @@ export default function Step4a() {
                 </p>
               </div>
               <div className="">
-              
+
                 {/* <div className=" inset-0 flex items-center justify-center">
                   <button
                     type="button"
@@ -218,6 +187,19 @@ export default function Step4a() {
                   cancelButtonRef={cancelButtonRef}
                 > */}
 
+                <div className=" py-4 inset-0 flex items-center justify-center" >
+                  <button
+                    className={isUploading ? disabledClass : regularClass}
+                    onClick={openFileInput}
+                    disabled={isUploading}
+                  >
+                    <ArrowUpTrayIcon className="h-6 w-6 text-white" aria-hidden="true" />
+                    {isUploading ? "Uploading..." : "Upload Image"}
+                  </button>
+
+                </div>
+
+
 
                 {/* @ts-ignore */}
                 <Form ref={formRef} method="post" encType="multipart/form-data" >
@@ -226,13 +208,25 @@ export default function Step4a() {
                   <fieldset className="grid grid-cols-1 py-3">
                     <div className="mx-auto">
 
-                    <label className=" max-w-xs inline-flex items-center border-2 gap-x-4 rounded-md bg-orange-500 py-2.5 px-3.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 hover:border-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" htmlFor="img-field">
-                      <ArrowUpTrayIcon className="h-6 w-6 text-white" aria-hidden="true" />
-                      <input className="hidden"
-                        onChange={(e) => checkFilesPresent(e)} id="img-field" type="file" name="img" accept="image/*" />
-                     {    } Upload Image
-                    </label>
-                        </div>
+                      {/* <label className=" max-w-xs inline-flex items-center border-2 gap-x-4 rounded-md bg-slate-500 py-2.5 px-3.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 hover:border-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" htmlFor="img-field"> */}
+                      <input
+                        ref={fileInputRef}
+                        className="hidden"
+                        onChange={(e) => checkFilesPresent(e)}
+                        id="img-field"
+                        type="file"
+                        name="img"
+                        accept="image/*"
+                      />
+                      <input
+                        className="hidden"
+                        name="_action"
+                        value="uploadImage"
+                        readOnly
+                      />
+
+                      {/* </label> */}
+                    </div>
 
 
                     <div className="">
@@ -242,6 +236,7 @@ export default function Step4a() {
                           name="desc"
                           className="hidden"
                           value={fileName}
+                          readOnly
                         />
                       </div>
                     </div>
@@ -260,6 +255,8 @@ export default function Step4a() {
                   </div> */}
                 </Form>
                 {/* </Modal> */}
+
+
                 <div className="py-4">
                   <h4 className="text-xl text-slate-700">Uploaded Images</h4>
                   <p>Uploaded Images Appear here. If you do not see your image it did not upload currently </p>
@@ -271,12 +268,29 @@ export default function Step4a() {
                       <li key={imageData.url} className="relative">
                         <div className="group aspect-w-10 aspect-h-7 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
                           <img src={imageData.url} alt="" className="pointer-events-none object-cover group-hover:opacity-75" />
-                          <button type="button" className="absolute inset-0 focus:outline-none">
-                            <span className="sr-only">View details</span>
-                          </button>
                         </div>
                         <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">{imageData.description}</p>
-                        <p className="pointer-events-none block text-sm font-medium text-gray-500">size</p>
+                        <Form method="post" action={deleteImageUrl}>
+                          <button name="_action" value="delete" className="inline-flex items-center gap-x-1.5 rounded-md bg-slate-100 py-1.5 px-2.5 text-sm font-semibold text-slate-500 shadow-sm hover:bg-red-500  hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"> <XCircleIcon className="h-6 w-6 " /> Delete </button>
+                          <input
+                            className="hidden"
+                            name="imageId"
+                            value={imageData.imageId} 
+                            readOnly
+                            />
+                          <input
+                            className="hidden"
+                            name="url"
+                            value={imageData.url} 
+                            readOnly
+                            />
+                          <input
+                            className="hidden"
+                            name="description"
+                            value={imageData.description} 
+                            readOnly
+                          />
+                        </Form>
                       </li>
                     ))}
                   </ul>
