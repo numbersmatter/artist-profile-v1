@@ -42,6 +42,19 @@ export const readIntentDoc =async (
   return { ...intentData, intentId}
 };
 
+export const isIntentValid =async (
+  profileId:string,
+  intentId: string,
+) => {
+  const intentDoc = await readIntentDoc(profileId, intentId);
+
+  if(!intentDoc){
+    return "invalid";
+  }
+
+  return intentDoc.status;
+}
+
 
 export const submitIntent = async (
   profileId:string,

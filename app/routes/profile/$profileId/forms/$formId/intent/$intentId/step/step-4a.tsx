@@ -1,6 +1,7 @@
 import { ArrowUpTrayIcon,  } from "@heroicons/react/20/solid";
 import { XCircleIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import type { ActionArgs, LoaderArgs, UploadHandler } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { unstable_composeUploadHandlers, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node";
 import {
   json,
@@ -8,9 +9,8 @@ import {
 } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData, useSubmit, useTransition } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
-import { deleteMilaImageUpload, readMilaImageUpload, saveMilaImageUpload, } from "~/server/mila.server";
+import {  isIntentValid, readMilaImageUpload, saveMilaImageUpload, } from "~/server/mila.server";
 import { uploadImage } from "~/server/routes-logic/formBuilder/cloudinary.server";
-import FormButtons from "~/server/routes-logic/formBuilder/ui/elements/FormButtons";
 
 import { getParams } from "~/server/routes-logic/profile/profile.server";
 
@@ -55,6 +55,16 @@ export async function action({ params, request }: ActionArgs) {
 
 export async function loader({ params }: LoaderArgs) {
   const { profileId, formId, intentId } = getParams(params);
+
+  const intentStatus = await isIntentValid(profileId, intentId);
+
+  if(intentStatus === 'invalid'){
+    return redirect(`/profile/${profileId}`)
+  }
+  if(intentStatus === 'submitted'){
+    return redirect(`/profile/${profileId}/forms/${formId}/intent/${intentId}/status`)
+  }
+
 
 
   const stepId = "step-4a"
@@ -102,10 +112,8 @@ const disabledClass = " inline-flex items-center border-2 gap-x-4 rounded-md bg-
 
 export default function Step4a() {
   const [filesPresent, setFilesPresent] = useState<boolean>(false);
-  const [open, setOpen] = useState(false)
   const [fileName, setFileName] = useState<string>("")
 
-  const cancelButtonRef = useRef(null)
   const {
     question,
     backUrl,
@@ -137,7 +145,7 @@ export default function Step4a() {
       formRef.current?.reset()
       setFileName("")
       setFilesPresent(false)
-      setOpen(false)
+    
     }
   }, [isUploading])
 

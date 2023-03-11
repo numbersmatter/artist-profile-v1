@@ -2,7 +2,7 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { z } from "zod";
-import { readMilaResponse, saveMilaResponse, submitIntent } from "~/server/mila.server";
+import { isIntentValid, readMilaResponse, saveMilaResponse, submitIntent } from "~/server/mila.server";
 import type { Field } from "~/server/routes-logic/formBuilder/types";
 import QuestionPanel from "~/server/routes-logic/formBuilder/ui/elements/QuestionPanel";
 import StackedField from "~/server/routes-logic/formBuilder/ui/elements/StackedField";
@@ -43,6 +43,15 @@ export async function action({ params, request }: ActionArgs) {
 
 export async function loader({ params }: LoaderArgs) {
   const { profileId,formId, intentId } = getParams(params);
+  const intentStatus = await isIntentValid(profileId, intentId);
+
+  if(intentStatus === 'invalid'){
+    return redirect(`/profile/${profileId}`)
+  }
+  if(intentStatus === 'submitted'){
+    return redirect(`/profile/${profileId}/forms/${formId}/intent/${intentId}/status`)
+  }
+
 
   const stepId = "step-7"
   const responseDoc = await readMilaResponse(profileId, intentId, stepId)
