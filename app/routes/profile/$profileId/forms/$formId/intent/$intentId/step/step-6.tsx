@@ -23,7 +23,7 @@ export async function action({ params, request }: ActionArgs) {
     backgroundDetails: z.string(),
   })
   const DetailsRequired = z.object({
-    detailLevel: z.enum(["simple", "complex"]),
+    detailLevel: z.enum(["simple", "detailed"]),
     backgroundType: z.enum(["bedroom", "forest", "clawfee", "bathroom", "nightclub", "beach", "other"]),
     backgroundDetails: z.string().min(10, "This field is required to be at least 10 characters if background Type is 'other' "),
   })

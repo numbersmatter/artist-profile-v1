@@ -99,7 +99,7 @@ export const saveMilaImageUpload = async (
   }
 
   //  @ts-ignore
-  const writeResult = await responseDocRef.update(writeData);
+  const writeResult = await responseDocRef.set(writeData, {merge:true});
 
   return writeResult;
 };

@@ -2,7 +2,7 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { z } from "zod";
-import { readMilaResponse, saveMilaResponse } from "~/server/mila.server";
+import { readMilaImageUpload, readMilaResponse, saveMilaResponse } from "~/server/mila.server";
 import type { Field } from "~/server/routes-logic/formBuilder/types";
 import QuestionPanel from "~/server/routes-logic/formBuilder/ui/elements/QuestionPanel";
 import StackedField from "~/server/routes-logic/formBuilder/ui/elements/StackedField";
@@ -52,11 +52,14 @@ export async function loader({ params }: LoaderArgs) {
   const fieldResponses = responseDoc ? responseDoc.fieldResponses :{ charArea:""}
   const savedResponse = fieldResponses["charArea"]
 
+  const imagesUploadDoc = await readMilaImageUpload(profileId, intentId, "step-4a")
+  const imgsUploaded = imagesUploadDoc ? imagesUploadDoc.imgList : []
+
 
 
   const questionName = "Character References";
 
-  const questionText = "Here you can upload images or you can put links to your character references here. You don't need to link anything if you already uploaded a reference in another question. If so, you can put their names here. You don't need to put a reference if you want a character to be anonymous or one of my characters.";
+  const questionText = "Here you can place links to your character references you were not able to uploade. You don't need to link anything if you already uploaded a reference in previous question. You don't need to put a reference if you want a character to be anonymous or one of my characters. ";
 
   const question = {
     name: questionName,
@@ -73,17 +76,17 @@ export async function loader({ params }: LoaderArgs) {
   const fields: Field[] = [characterRef];
 
   const backUrl =
-  `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-3`
+  `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-4a`
 
 
-  return json({ question, fields, backUrl, savedResponse });
+  return json({ question, fields, backUrl, savedResponse, imgsUploaded });
 }
 
 
 
 
 export default function Step3() {
-  const { question, fields, backUrl, savedResponse } = useLoaderData<typeof loader>();
+  const { question, fields, backUrl, savedResponse, imgsUploaded } = useLoaderData<typeof loader>();
   const actionData = useActionData();
   return (
     <Form method="post">
@@ -105,6 +108,38 @@ export default function Step3() {
           }
         </QuestionPanel>
         <FormButtons cancelUrl={backUrl} next="Save/Next"/>
+        <div className="bg-white  px-4 py-5 shadow sm:rounded-lg sm:p-6">
+          <div className="space-y-8 divide-y divide-gray-200">
+        <div className="py-4">
+
+                  <h4 className="text-xl text-slate-700">Uploaded Images:</h4>
+                  <p>Images you uploaded in the previous question</p>
+                  <ul
+                    className=" pt-2 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
+                  >
+                    {
+                    
+                    imgsUploaded.length > 0 ?
+                    imgsUploaded.map((imageData
+                    ) => (
+                      <li key={imageData.url} className="relative">
+                        <div className="group aspect-w-10 aspect-h-7 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
+                          <img src={imageData.url} alt="" className="pointer-events-none object-cover group-hover:opacity-75" />
+                        </div>
+                        <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">{imageData.description}</p>
+                      </li>
+                    ))
+                    : <div className="mx-auto ">
+                      
+                      <p className="text-xl text-slate-500"> No images uploaded</p>
+                      </div>
+                  
+                  }
+                  </ul>
+                </div>
+
+      </div>
+      </div>
       </div>
     </Form>
   );

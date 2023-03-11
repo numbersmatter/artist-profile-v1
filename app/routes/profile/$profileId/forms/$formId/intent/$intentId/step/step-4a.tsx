@@ -1,12 +1,12 @@
-import { ArrowUpTrayIcon } from "@heroicons/react/20/solid";
-import { XCircleIcon } from "@heroicons/react/24/outline";
+import { ArrowUpTrayIcon,  } from "@heroicons/react/20/solid";
+import { XCircleIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import type { ActionArgs, LoaderArgs, UploadHandler } from "@remix-run/node";
 import { unstable_composeUploadHandlers, unstable_createMemoryUploadHandler, unstable_parseMultipartFormData } from "@remix-run/node";
 import {
   json,
   // redirect 
 } from "@remix-run/node";
-import { Form, useActionData, useLoaderData, useSubmit, useTransition } from "@remix-run/react";
+import { Form, Link, useActionData, useLoaderData, useSubmit, useTransition } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
 import { deleteMilaImageUpload, readMilaImageUpload, saveMilaImageUpload, } from "~/server/mila.server";
 import { uploadImage } from "~/server/routes-logic/formBuilder/cloudinary.server";
@@ -67,7 +67,7 @@ export async function loader({ params }: LoaderArgs) {
 
   const questionName = "Character References";
 
-  const questionText = "Here you can upload images or you can put links to your character references here. You don't need to link anything if you already uploaded a reference in another question. If so, you can put their names here. You don't need to put a reference if you want a character to be anonymous or one of my characters.";
+  const questionText = "Here you can upload reference images. If you cannot upload images, you can provide links to images on the next page.";
 
   const question = {
     name: questionName,
@@ -85,9 +85,13 @@ export async function loader({ params }: LoaderArgs) {
 
   const backUrl =
     `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-3`
+  const nextUrl =
+    `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-4`
+
+  const maxImagesReached = imgsUploaded.length < 8 
 
 
-  return json({ question, backUrl, imgsUploaded, deleteImageUrl });
+  return json({ question, backUrl, imgsUploaded, deleteImageUrl, nextUrl, maxImagesReached });
 }
 
 
@@ -106,7 +110,9 @@ export default function Step4a() {
     question,
     backUrl,
     imgsUploaded,
-    deleteImageUrl
+    deleteImageUrl,
+    nextUrl,
+    maxImagesReached,
   } = useLoaderData<typeof loader>();
 
   const actionData = useActionData();
@@ -158,7 +164,6 @@ export default function Step4a() {
 
   return (
     <div className="max-w-2xl pb-5">
-      <div className="max-w-2xl pb-5">
         <div className="bg-white  px-4 py-5 shadow sm:rounded-lg sm:p-6">
           <div className="space-y-8 divide-y divide-gray-200">
             <div>
@@ -187,18 +192,33 @@ export default function Step4a() {
                   cancelButtonRef={cancelButtonRef}
                 > */}
 
-                <div className=" py-4 inset-0 flex items-center justify-center" >
+                {
+                  maxImagesReached ?
+                  <div className=" py-4 inset-0 flex items-center justify-center" >
                   <button
                     className={isUploading ? disabledClass : regularClass}
                     onClick={openFileInput}
                     disabled={isUploading}
-                  >
+                    >
                     <ArrowUpTrayIcon className="h-6 w-6 text-white" aria-hidden="true" />
                     {isUploading ? "Uploading..." : "Upload Image"}
                   </button>
 
                 </div>
+                : <div className="border-l-4 border-yellow-400 bg-yellow-50 p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400" aria-hidden="true" />
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-yellow-700">
+                      You have reached the maximum number of images uploaded. Please delete some images in order to upload new images. 
+                    </p>
+                  </div>
+                </div>
+              </div>
 
+}
 
 
                 {/* @ts-ignore */}
@@ -258,12 +278,15 @@ export default function Step4a() {
 
 
                 <div className="py-4">
-                  <h4 className="text-xl text-slate-700">Uploaded Images</h4>
-                  <p>Uploaded Images Appear here. If you do not see your image it did not upload currently </p>
+                  <h4 className="text-xl text-slate-700">Uploaded Images:</h4>
+                  <p>Uploaded images will appear here. If you do not see your image it did not upload correctly.</p>
                   <ul
                     className=" pt-2 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
                   >
-                    {imgsUploaded.map((imageData
+                    {
+                    
+                    imgsUploaded.length > 0 ?
+                    imgsUploaded.map((imageData
                     ) => (
                       <li key={imageData.url} className="relative">
                         <div className="group aspect-w-10 aspect-h-7 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
@@ -292,7 +315,13 @@ export default function Step4a() {
                           />
                         </Form>
                       </li>
-                    ))}
+                    ))
+                    : <div className="mx-auto ">
+                      
+                      <p className="text-xl text-slate-500"> No images uploaded</p>
+                      </div>
+                  
+                  }
                   </ul>
                 </div>
 
@@ -310,12 +339,26 @@ export default function Step4a() {
         </div>
 
 
-        <FormButtons cancelUrl={backUrl} />
+        <div className="py-3 flex justify-end">
+      <Link
+        to={backUrl}
+        type="button"
+        className="rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+      >
+        Previous
+      </Link>
+      <Link
+        to={nextUrl}
+        className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+      >
+        Save/Next
+      </Link>
+    </div>
+
       </div>
 
 
 
-    </div>
 
   );
 }

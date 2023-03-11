@@ -29,7 +29,7 @@ export async function action({ params, request }: ActionArgs) {
     return message;
   } else {
     const writeResult = await saveMilaResponse(profileId, intentId, stepId, checkSchema.data)
-    const redirectUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-4`
+    const redirectUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-4a`
 
     return redirect(redirectUrl);
   }
