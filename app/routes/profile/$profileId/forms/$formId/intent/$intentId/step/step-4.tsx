@@ -99,7 +99,7 @@ export default function Step3() {
   const { question, fields, backUrl, savedResponse, imgsUploaded } = useLoaderData<typeof loader>();
   const actionData = useActionData();
   return (
-    <Form method="post">
+    <Form method="post" >
       <div className="max-w-2xl pb-5">
         <QuestionPanel name={question.name} text={question.text}>
           {

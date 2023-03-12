@@ -230,7 +230,7 @@ export default function Step4a() {
 
 
                 {/* @ts-ignore */}
-                <Form ref={formRef} method="post" encType="multipart/form-data" >
+                <Form ref={formRef} replace method="post" encType="multipart/form-data" >
                   {actionData ? <p>{JSON.stringify(actionData)}</p> : <p>
                   </p>}
                   <fieldset className="grid grid-cols-1 py-3">
@@ -301,7 +301,7 @@ export default function Step4a() {
                           <img src={imageData.url} alt="" className="pointer-events-none object-cover group-hover:opacity-75" />
                         </div>
                         <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">{imageData.description}</p>
-                        <Form method="post" action={deleteImageUrl}>
+                        <Form replace method="post" action={deleteImageUrl}>
                           <button name="_action" value="delete" className="inline-flex items-center gap-x-1.5 rounded-md bg-slate-100 py-1.5 px-2.5 text-sm font-semibold text-slate-500 shadow-sm hover:bg-red-500  hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"> <XCircleIcon className="h-6 w-6 " /> Delete </button>
                           <input
                             className="hidden"

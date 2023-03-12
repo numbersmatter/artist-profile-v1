@@ -13,17 +13,20 @@ import styles from "./styles/app.css"
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
-  title: "New Remix App",
+  title: "Milachu",
   viewport: "width=device-width,initial-scale=1",
 });
 
 
 export function links(){
-  return [{ rel:"stylesheet", href:styles}]
+  return [
+    { rel:"stylesheet", href:styles},
+   
+  ]
 }
 export function Document({
   children,
-  title = "Remix title",
+  title = "Milachu92",
 }: {
   children: React.ReactNode;
   title?: string
