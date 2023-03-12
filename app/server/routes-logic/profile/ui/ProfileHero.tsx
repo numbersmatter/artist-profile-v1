@@ -23,7 +23,7 @@ export default function ProfileHero(props: IProfileHero) {
           Milachu92 the Pikachu
         </h1>
         <p className="mt-6 text-lg leading-8 text-gray-600">
-          Hello
+          
         </p>
         <div className="mt-10 flex items-center gap-x-6">
           <Link
@@ -32,7 +32,7 @@ export default function ProfileHero(props: IProfileHero) {
             >
             Get started
           </Link>
-          <Link to="#faq" className="text-sm font-semibold leading-6 text-gray-900">
+          <Link to="#faq" className="text-sm font-semibold leading-6 text-slate-100">
             Learn More In My FAQ <span aria-hidden="true">→</span>
           </Link>
         </div>

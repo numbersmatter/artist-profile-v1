@@ -41,7 +41,7 @@ export function ProfileHeader(props: ProfileHeaderProps) {
         </div>
         <div className="hidden sm:block md:hidden mt-6 min-w-0 flex-1">
           <h1 className="text-2xl font-bold text-white truncate">
-            Profile Name
+            {displayName}
           </h1>
         </div>
       </div>

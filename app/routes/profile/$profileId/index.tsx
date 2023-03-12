@@ -141,9 +141,7 @@ export default function ProfileMain() {
 
       </div>
 
-      <div className=" h-10">
-        footer
-      </div>
+      
     </div>
   )
 }

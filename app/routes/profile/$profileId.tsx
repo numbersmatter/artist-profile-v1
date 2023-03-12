@@ -16,20 +16,25 @@ export async function loader({params}:LoaderArgs) {
     throw new Response("no profile data", {status:404})
   }
 
-  return json( { pageHeaderData})
+  const modifiedpageHeaderData = {...pageHeaderData, displayName: "Milachu92"}
+
+  return json( { modifiedpageHeaderData})
   
 }
 
 export default function ProfileLayout(){
-  const { pageHeaderData } = useLoaderData<typeof loader>();
+  const { modifiedpageHeaderData } = useLoaderData<typeof loader>();
 
 
   return (
     <div className="min-h-screen bg-[#2a9bb5] flex flex-col ">
-      <ProfileHeader data={pageHeaderData} />
+      <ProfileHeader data={modifiedpageHeaderData} />
       <div className="mx-auto rounded-lg">
         <Outlet />
 
+      </div>
+      <div className="h-16">
+       
       </div>
     </div>
   )
