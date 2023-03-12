@@ -31,5 +31,5 @@ async function uploadImage(referenceId: string, data: AsyncIterable<Uint8Array>)
   return uploadPromise;
 }
 
-console.log("configs", cloudinary.v2.config());
+
 export { uploadImage };
