@@ -69,7 +69,7 @@ export async function loader({ params }: LoaderArgs) {
 
   const questionName = "Character References";
 
-  const questionText = "Here you can place links to your character references you were not able to uploade. You don't need to link anything if you already uploaded a reference in previous question. You don't need to put a reference if you want a character to be anonymous or one of my characters. ";
+  const questionText = "Here you can place links to your character references you were not able to upload. You don't need to link anything if you already uploaded a reference in previous question. You don't need to put a reference if you want a character to be anonymous or one of my characters. ";
 
   const question = {
     name: questionName,

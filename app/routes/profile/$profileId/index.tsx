@@ -112,21 +112,27 @@ export default function ProfileMain() {
       <div id="open-forms" className="relative">
 
         <div className="mx-auto max-w-7xl py-5  grid grid-cols-1 gap-y-4 ">
-          <h2 className="mx-auto text-4xl py-3 text-white">Open Forms</h2>
           {
-            opportunities.map((opportunity) =>{
-              const linkUrl = `tos/${opportunity.opportunityId}`
-              return <OpportunityCard 
+            opportunities.length > 0 ? <>
+            <h2 className="mx-auto text-4xl py-3 text-white">Open Forms</h2>
+            {
+              opportunities.map((opportunity) =>{
+                const linkUrl = `tos/${opportunity.opportunityId}`
+                return <OpportunityCard 
                 key={opportunity.opportunityId} 
                 name ={opportunity.name} 
                 text={opportunity.text}
                 linkUrl={linkUrl}
                 />
-              
+                
+              }
+              )
             }
-            )
+            </>
+            :
+            <img className='h-72 mx-auto w-auto max-w-lg ' alt="Closed Sign" src='https://firebasestorage.googleapis.com/v0/b/fm-mvp6.appspot.com/o/website-assets%2Fclawfeehouseclosed.png?alt=media&token=8b93aedd-3fa4-4a76-8020-a2182d38db3e'/>
           }
-
+            
         </div>
       </div>
 
