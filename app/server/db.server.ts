@@ -79,5 +79,9 @@ export const db = {
   questions: (profileId:string) => dataPoint<Questionform>(`${versionUrl}/profile/${profileId}/questions`),
   responses: (profileId: string, intentId:string)=> dataPoint<ResponseDoc>(`${versionUrl}/profile/${profileId}/intents/${intentId}/responses`), 
   imgUploads: (profileId: string, intentId:string)=> dataPoint<ImgUploadDoc>(`${versionUrl}/profile/${profileId}/intents/${intentId}/imgUploads`), 
+  sections: (profileId:string) => 
+    dataPoint(`database/version2/profiles/${profileId}/sections`),
+  newFormDoc: (profileId:string) => 
+    dataPoint(`database/version2/profiles/${profileId}/forms`)
 
 };

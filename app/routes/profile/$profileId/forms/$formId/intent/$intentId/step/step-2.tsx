@@ -8,33 +8,33 @@ import QuestionPanel from "~/server/routes-logic/formBuilder/ui/elements/Questio
 import StackedField from "~/server/routes-logic/formBuilder/ui/elements/StackedField";
 import { getParams } from "~/server/routes-logic/profile/profile.server";
 import FormButtons from "~/server/routes-logic/set-profile/ui/forms/FormButtons";
+import { writeSection } from "~/server/writeSection";
 
 
 export async function action({ params, request }: ActionArgs) {
-  const formValues = Object.fromEntries(await request.formData());
   const { profileId, intentId, formId } = getParams(params);
-  const stepId = "step-2"
+
+  // const formValues = Object.fromEntries(await request.formData());
+  // const stepId = "step-2"
+  // const QuestionCreateSchema = z.object({
+  //   title: z.string(),
+  // })
+
+  // const checkSchema = QuestionCreateSchema.safeParse(formValues);
+  // if (!checkSchema.success) {
+  //   const rawMessage = checkSchema.error.issues.find((error) => error.path[0] === "title")?.message
+
+  //   const message = rawMessage ?? "There was an error."
 
 
-  const QuestionCreateSchema = z.object({
-    title: z.string(),
-  })
+  //   return message;
+  // } else {
+  //   const writeResult = await saveMilaResponse(profileId, intentId, stepId, checkSchema.data)
+  // }
+  
+  const redirectUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-3`
 
-  const checkSchema = QuestionCreateSchema.safeParse(formValues);
-  if (!checkSchema.success) {
-    const rawMessage = checkSchema.error.issues.find((error) => error.path[0] === "title")?.message
-
-    const message = rawMessage ?? "There was an error."
-
-
-    return message;
-  } else {
-    const writeResult = await saveMilaResponse(profileId, intentId, stepId, checkSchema.data)
-    const redirectUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-3`
-
-    return redirect(redirectUrl);
-  }
-
+  return redirect(redirectUrl);
 
 }
 
@@ -44,22 +44,23 @@ export async function loader({ params }: LoaderArgs) {
   const { profileId,formId, intentId } = getParams(params);
   const stepId = "step-2"
 
-  const intentStatus = await isIntentValid(profileId, intentId);
+  // const intentStatus = await isIntentValid(profileId, intentId);
 
-  if(intentStatus === 'invalid'){
-    return redirect(`/profile/${profileId}`)
-  }
-  if(intentStatus === 'submitted'){
-    return redirect(`/profile/${profileId}/forms/${formId}/intent/${intentId}/status`)
-  }
-
-
-  const responseDoc = await readMilaResponse(profileId, intentId, stepId)
+  // if(intentStatus === 'invalid'){
+  //   return redirect(`/profile/${profileId}`)
+  // }
+  // if(intentStatus === 'submitted'){
+  //   return redirect(`/profile/${profileId}/forms/${formId}/intent/${intentId}/status`)
+  // }
 
 
-  const fieldResponses = responseDoc ? responseDoc.fieldResponses :{ title:""}
+  // const responseDoc = await readMilaResponse(profileId, intentId, stepId)
 
-  const titleResp = fieldResponses["title"]
+
+  // const fieldResponses = responseDoc ? responseDoc.fieldResponses :{ title:""}
+
+  // const titleResp = fieldResponses["title"]
+  const titleResp = "title"
 
   const questionName = "Do you have a title in mind?";
 
@@ -77,6 +78,15 @@ export async function loader({ params }: LoaderArgs) {
   }
 
   const fields: Field[] = [titleRequest];
+
+  const formSectionData = {
+    name: question.name,
+    text: question.text,
+    fields
+  };
+
+  await writeSection(profileId, "xXv5WcGsRVGMSkuVUGvh", formSectionData )
+
 
   const backUrl =
   `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-1`

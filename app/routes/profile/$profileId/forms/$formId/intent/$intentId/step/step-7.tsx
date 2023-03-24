@@ -8,6 +8,7 @@ import QuestionPanel from "~/server/routes-logic/formBuilder/ui/elements/Questio
 import StackedField from "~/server/routes-logic/formBuilder/ui/elements/StackedField";
 import { getParams } from "~/server/routes-logic/profile/profile.server";
 import FormButtons from "~/server/routes-logic/set-profile/ui/forms/FormButtons";
+import { writeSection } from "~/server/writeSection";
 
 
 export async function action({ params, request }: ActionArgs) {
@@ -31,11 +32,7 @@ export async function action({ params, request }: ActionArgs) {
     await saveMilaResponse(profileId, intentId, stepId, checkSchema.data)
     await submitIntent(profileId, intentId)
 
-    const redirectUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/status`
-
-    return redirect(redirectUrl);
   }
-
 
 }
 
@@ -43,14 +40,14 @@ export async function action({ params, request }: ActionArgs) {
 
 export async function loader({ params }: LoaderArgs) {
   const { profileId,formId, intentId } = getParams(params);
-  const intentStatus = await isIntentValid(profileId, intentId);
+  // const intentStatus = await isIntentValid(profileId, intentId);
 
-  if(intentStatus === 'invalid'){
-    return redirect(`/profile/${profileId}`)
-  }
-  if(intentStatus === 'submitted'){
-    return redirect(`/profile/${profileId}/forms/${formId}/intent/${intentId}/status`)
-  }
+  // if(intentStatus === 'invalid'){
+  //   return redirect(`/profile/${profileId}`)
+  // }
+  // if(intentStatus === 'submitted'){
+  //   return redirect(`/profile/${profileId}/forms/${formId}/intent/${intentId}/status`)
+  // }
 
 
   const stepId = "step-7"
@@ -77,6 +74,15 @@ export async function loader({ params }: LoaderArgs) {
   }
 
   const fields: Field[] = [charActions];
+
+  const formSectionData = {
+    name: question.name,
+    text: question.text,
+    fields
+  };
+
+  await writeSection(profileId, "xXv5WcGsRVGMSkuVUGvh", formSectionData )
+
 
   const backUrl =
   `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-6`

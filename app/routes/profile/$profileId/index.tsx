@@ -1,5 +1,6 @@
 import type { LoaderArgs } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
+import { getOpenForms } from "~/server/newDb"
 import { getOpenOpportunities, getProfileFAQs } from "~/server/routes-logic/profile/profile.server"
 import OpportunityCard from "~/server/routes-logic/profile/ui/OpportunityCard"
 import ProfileFaq from "~/server/routes-logic/profile/ui/ProfileFAQ"
@@ -71,7 +72,7 @@ const faqNotionRaw = [
 export async function loader({ params }: LoaderArgs) {
   const profileId = params.profileId ?? "no-profileId"
   const faqs = await getProfileFAQs("milachu92");
-  const opportunities = await getOpenOpportunities(profileId)
+  const openForms = await getOpenForms("milachu92")
 
   const heroSection = {
 
@@ -90,7 +91,7 @@ export async function loader({ params }: LoaderArgs) {
 
   return {
     heroSection,
-    opportunities,
+    openForms,
     faqs,
     faqNotion,
     image1: "",
@@ -101,7 +102,7 @@ export async function loader({ params }: LoaderArgs) {
 
 
 export default function ProfileMain() {
-  const { opportunities, image2, faqNotion, faqs } = useLoaderData<typeof loader>()
+  const { openForms, image2, faqNotion, faqs } = useLoaderData<typeof loader>()
 
  
 
@@ -113,15 +114,15 @@ export default function ProfileMain() {
 
         <div className="mx-auto max-w-7xl py-5  grid grid-cols-1 gap-y-4 ">
           {
-            opportunities.length > 0 ? <>
+            openForms.length > 0 ? <>
             <h2 className="mx-auto text-4xl py-3 text-white">Open Forms</h2>
             {
-              opportunities.map((opportunity) =>{
-                const linkUrl = `tos/${opportunity.opportunityId}`
+              openForms.map((openForm) =>{
+                const linkUrl = `tos/${openForm.openId}`
                 return <OpportunityCard 
-                key={opportunity.opportunityId} 
-                name ={opportunity.name} 
-                text={opportunity.text}
+                key={openForm.openId} 
+                name ={"form name"} 
+                text={"form description"}
                 linkUrl={linkUrl}
                 />
                 

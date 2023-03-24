@@ -8,6 +8,7 @@ import QuestionPanel from "~/server/routes-logic/formBuilder/ui/elements/Questio
 import StackedField from "~/server/routes-logic/formBuilder/ui/elements/StackedField";
 import { getParams } from "~/server/routes-logic/profile/profile.server";
 import FormButtons from "~/server/routes-logic/set-profile/ui/forms/FormButtons";
+import { writeSection } from "~/server/writeSection";
 
 
 export async function action({ params, request }: ActionArgs) {
@@ -28,31 +29,31 @@ export async function action({ params, request }: ActionArgs) {
     backgroundDetails: z.string().min(10, "This field is required to be at least 10 characters if background Type is 'other' "),
   })
 
-  if(typeIsOther){
-    const checkSchema = DetailsRequired.safeParse(formValues)
+  // if(typeIsOther){
+  //   const checkSchema = DetailsRequired.safeParse(formValues)
 
-    if (!checkSchema.success) {
-      const detailLevelError = checkSchema.error.issues.find((error) => error.path[0] === "detailLevel")?.message ?? ""
-      const backgroundTypeError = checkSchema.error.issues.find((error) => error.path[0] === "backgroundType")?.message ?? ""
-      const backgroundDetailsError = checkSchema.error.issues.find((error) => error.path[0] === "backgroundDetails")?.message ?? ""
+  //   if (!checkSchema.success) {
+  //     const detailLevelError = checkSchema.error.issues.find((error) => error.path[0] === "detailLevel")?.message ?? ""
+  //     const backgroundTypeError = checkSchema.error.issues.find((error) => error.path[0] === "backgroundType")?.message ?? ""
+  //     const backgroundDetailsError = checkSchema.error.issues.find((error) => error.path[0] === "backgroundDetails")?.message ?? ""
   
-      const errorMessages = {
-        detailLevel: detailLevelError,
-        backgroundType: backgroundTypeError,
-        backgroundDetails: backgroundDetailsError
-      }
+  //     const errorMessages = {
+  //       detailLevel: detailLevelError,
+  //       backgroundType: backgroundTypeError,
+  //       backgroundDetails: backgroundDetailsError
+  //     }
   
   
-      return errorMessages;
-    } else {
-      const writeResult = await saveMilaResponse(profileId, intentId, stepId, checkSchema.data)
-      const redirectUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-7`
-  
-      return redirect(redirectUrl);
-    }
-  
+  //     return errorMessages;
+  //   } else {
+  //     const writeResult = await saveMilaResponse(profileId, intentId, stepId, checkSchema.data)
+  //   }
+    
+    
+  // }
+  const redirectUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-7`
 
-  }
+  return redirect(redirectUrl);
 
 
 
@@ -60,26 +61,26 @@ export async function action({ params, request }: ActionArgs) {
 
 
   // details not required
-  const checkSchema = DetailsNotRequired.safeParse(formValues);
-  if (!checkSchema.success) {
-    const detailLevelError = checkSchema.error.issues.find((error) => error.path[0] === "detailLevel")?.message ?? ""
-    const backgroundTypeError = checkSchema.error.issues.find((error) => error.path[0] === "backgroundType")?.message ?? ""
-    const backgroundDetailsError = checkSchema.error.issues.find((error) => error.path[0] === "backgroundDetails")?.message ?? ""
+  // const checkSchema = DetailsNotRequired.safeParse(formValues);
+  // if (!checkSchema.success) {
+  //   const detailLevelError = checkSchema.error.issues.find((error) => error.path[0] === "detailLevel")?.message ?? ""
+  //   const backgroundTypeError = checkSchema.error.issues.find((error) => error.path[0] === "backgroundType")?.message ?? ""
+  //   const backgroundDetailsError = checkSchema.error.issues.find((error) => error.path[0] === "backgroundDetails")?.message ?? ""
 
-    const errorMessages = {
-      detailLevel: detailLevelError,
-      backgroundType: backgroundTypeError,
-      backgroundDetails: backgroundDetailsError
-    }
+  //   const errorMessages = {
+  //     detailLevel: detailLevelError,
+  //     backgroundType: backgroundTypeError,
+  //     backgroundDetails: backgroundDetailsError
+  //   }
 
 
-    return errorMessages;
-  } else {
-    const writeResult = await saveMilaResponse(profileId, intentId, stepId, checkSchema.data)
-    const redirectUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-7`
+  //   return errorMessages;
+  // } else {
+  //   const writeResult = await saveMilaResponse(profileId, intentId, stepId, checkSchema.data)
+  //   const redirectUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-7`
 
-    return redirect(redirectUrl);
-  }
+  //   return redirect(redirectUrl);
+  // }
 
 
 }
@@ -162,6 +163,15 @@ export async function loader({ params }: LoaderArgs) {
     backgroundType,
     backgroundDetails
   ];
+
+  const formSectionData = {
+    name: question.name,
+    text: question.text,
+    fields
+  };
+
+  await writeSection(profileId, "xXv5WcGsRVGMSkuVUGvh", formSectionData )
+
 
   const backUrl =
     `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-5`

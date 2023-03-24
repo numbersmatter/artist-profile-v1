@@ -8,6 +8,7 @@ import QuestionPanel from "~/server/routes-logic/formBuilder/ui/elements/Questio
 import StackedField from "~/server/routes-logic/formBuilder/ui/elements/StackedField";
 import { getParams } from "~/server/routes-logic/profile/profile.server";
 import FormButtons from "~/server/routes-logic/set-profile/ui/forms/FormButtons";
+import { writeSection } from "~/server/writeSection";
 
 
 export async function action({ params, request }: ActionArgs) {
@@ -19,21 +20,21 @@ export async function action({ params, request }: ActionArgs) {
     numchar: z.enum(["one_char", "one_half_char", "two_char", "three_char", "two_half_char" ]),
   })
 
-  const checkSchema = QuestionCreateSchema.safeParse(formValues);
-  if (!checkSchema.success) {
-    const rawMessage = checkSchema.error.issues.find((error) => error.path[0] === "numchar")?.message
+  // const checkSchema = QuestionCreateSchema.safeParse(formValues);
+  // if (!checkSchema.success) {
+  //   const rawMessage = checkSchema.error.issues.find((error) => error.path[0] === "numchar")?.message
 
-    const message = rawMessage ?? "There was an error."
+  //   const message = rawMessage ?? "There was an error."
 
 
-    return message;
-  } else {
-    const writeResult = await saveMilaResponse(profileId, intentId, stepId, checkSchema.data)
-    const redirectUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-4a`
+  //   return message;
+  // } else {
+  //   const writeResult = await saveMilaResponse(profileId, intentId, stepId, checkSchema.data)
+  // }
+  
+  const redirectUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-4a`
 
-    return redirect(redirectUrl);
-  }
-
+  return redirect(redirectUrl);
 
 }
 
@@ -42,23 +43,23 @@ export async function action({ params, request }: ActionArgs) {
 export async function loader({ params }: LoaderArgs) {
   const { profileId,formId, intentId } = getParams(params);
 
-  const intentStatus = await isIntentValid(profileId, intentId);
+  // const intentStatus = await isIntentValid(profileId, intentId);
 
-  if(intentStatus === 'invalid'){
-    return redirect(`/profile/${profileId}`)
-  }
-  if(intentStatus === 'submitted'){
-    return redirect(`/profile/${profileId}/forms/${formId}/intent/${intentId}/status`)
-  }
-
-
-  const stepId = "step-3"
-  const responseDoc = await readMilaResponse(profileId, intentId, stepId)
-  const fieldResponses = responseDoc ? responseDoc.fieldResponses :{ numchar:""}
-  const savedResponse = fieldResponses["numchar"]
+  // if(intentStatus === 'invalid'){
+  //   return redirect(`/profile/${profileId}`)
+  // }
+  // if(intentStatus === 'submitted'){
+  //   return redirect(`/profile/${profileId}/forms/${formId}/intent/${intentId}/status`)
+  // }
 
 
-
+  // const stepId = "step-3"
+  // const responseDoc = await readMilaResponse(profileId, intentId, stepId)
+  // const fieldResponses = responseDoc ? responseDoc.fieldResponses :{ numchar:""}
+  
+  
+  
+  const savedResponse = "two_char"
   const questionName = "Number of characters?";
 
   const questionText = "How many characters would you like? The number of characters changes the price. Half-characters are mostly off-screen where only part of them is showing. More complex characters will cost more, so small characters like Mila are $100 each, but more complex designs like anthros are closer to $150.";
@@ -82,6 +83,15 @@ export async function loader({ params }: LoaderArgs) {
   }
 
   const fields: Field[] = [titleRequest];
+
+  const formSectionData = {
+    name: question.name,
+    text: question.text,
+    fields
+  };
+
+  await writeSection(profileId, "xXv5WcGsRVGMSkuVUGvh", formSectionData )
+
 
   const backUrl =
   `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-2`

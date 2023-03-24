@@ -11,8 +11,10 @@ import { Form, Link, useActionData, useLoaderData, useSubmit, useTransition } fr
 import { useEffect, useRef, useState } from "react";
 import {  isIntentValid, readMilaImageUpload, saveMilaImageUpload, } from "~/server/mila.server";
 import { uploadImage } from "~/server/routes-logic/formBuilder/cloudinary.server";
+import { Field } from "~/server/routes-logic/formBuilder/types";
 
 import { getParams } from "~/server/routes-logic/profile/profile.server";
+import { writeSection } from "~/server/writeSection";
 
 
 
@@ -56,14 +58,14 @@ export async function action({ params, request }: ActionArgs) {
 export async function loader({ params }: LoaderArgs) {
   const { profileId, formId, intentId } = getParams(params);
 
-  const intentStatus = await isIntentValid(profileId, intentId);
+  // const intentStatus = await isIntentValid(profileId, intentId);
 
-  if(intentStatus === 'invalid'){
-    return redirect(`/profile/${profileId}`)
-  }
-  if(intentStatus === 'submitted'){
-    return redirect(`/profile/${profileId}/forms/${formId}/intent/${intentId}/status`)
-  }
+  // if(intentStatus === 'invalid'){
+  //   return redirect(`/profile/${profileId}`)
+  // }
+  // if(intentStatus === 'submitted'){
+  //   return redirect(`/profile/${profileId}/forms/${formId}/intent/${intentId}/status`)
+  // }
 
 
 
@@ -84,14 +86,22 @@ export async function loader({ params }: LoaderArgs) {
     text: questionText,
   }
 
-  // const characterRef: Field = {
-  //   fieldId: "charArea",
-  //   type: "longText",
-  //   label: "Character Reference Details",
+  const characterRef: Field = {
+    fieldId: "charImages",
+    type: "imageUpload",
+    label: "Character Image References",
+  }
 
-  // }
+  const fields: Field[] = [characterRef];
 
-  // const fields: Field[] = [characterRef];
+  const formSectionData = {
+    name: question.name,
+    text: question.text,
+    fields
+  };
+
+  await writeSection(profileId, "xXv5WcGsRVGMSkuVUGvh", formSectionData )
+
 
   const backUrl =
     `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-3`

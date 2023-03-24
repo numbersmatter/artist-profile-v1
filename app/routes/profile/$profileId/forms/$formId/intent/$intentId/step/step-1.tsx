@@ -8,43 +8,44 @@ import QuestionPanel from "~/server/routes-logic/formBuilder/ui/elements/Questio
 import StackedField from "~/server/routes-logic/formBuilder/ui/elements/StackedField";
 import { getParams } from "~/server/routes-logic/profile/profile.server";
 import FormButtons from "~/server/routes-logic/set-profile/ui/forms/FormButtons";
+import { writeSection } from "~/server/writeSection";
 
 
 export async function action({ params, request }: ActionArgs) {
   // const formValues = Object.fromEntries(await request.formData());
   // I need to trim whitespace from email functions
-
-  const formData = await request.formData();
-  const emailRaw = formData.get("email") as string;
-
-  const emailTrimmed = emailRaw.trim()
-
-  const formValues = {
-    email: emailTrimmed
-  }
-
   const { profileId, intentId,  formId } = getParams(params);
 
-  const stepId = "step-1"
+  // const formData = await request.formData();
+  // const emailRaw = formData.get("email") as string;
 
-  const QuestionCreateSchema = z.object({
-    email: z.string().email("Must be a valid email format"),
-  })
+  // const emailTrimmed = emailRaw.trim()
 
-  const checkSchema = QuestionCreateSchema.safeParse(formValues);
-  if (!checkSchema.success) {
-    const rawMessage = checkSchema.error.issues.find((error) => error.path[0] === "email")?.message
-
-    const message = rawMessage ?? "There was an error for email."
+  // const formValues = {
+  //   email: emailTrimmed
+  // }
 
 
-    return message;
-  } else {
-    const writeResult = await saveMilaResponse(profileId, intentId, stepId, checkSchema.data)
-    const redirectUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-2`
+  // const stepId = "step-1"
 
-    return redirect(redirectUrl);
-  }
+  // const QuestionCreateSchema = z.object({
+  //   email: z.string().email("Must be a valid email format"),
+  // })
+
+  // const checkSchema = QuestionCreateSchema.safeParse(formValues);
+  // if (!checkSchema.success) {
+  //   const rawMessage = checkSchema.error.issues.find((error) => error.path[0] === "email")?.message
+
+  //   const message = rawMessage ?? "There was an error for email."
+
+
+  //   return message;
+  // } else {
+  //   const writeResult = await saveMilaResponse(profileId, intentId, stepId, checkSchema.data)
+  // }
+  const redirectUrl = `/profile/${profileId}/forms/${formId}/intent/${intentId}/step/step-2`
+
+  return redirect(redirectUrl);
 
 
 }
@@ -55,20 +56,21 @@ export async function loader({ params }: LoaderArgs) {
   const { profileId, intentId, formId } = getParams(params);
   const stepId = "step-1"
 
-  const intentStatus = await isIntentValid(profileId, intentId);
+  // const intentStatus = await isIntentValid(profileId, intentId);
 
-  if(intentStatus === 'invalid'){
-    return redirect(`/profile/${profileId}`)
-  }
-  if(intentStatus === 'submitted'){
-    return redirect(`/profile/${profileId}/forms/${formId}/intent/${intentId}/status`)
-  }
+  // if(intentStatus === 'invalid'){
+  //   return redirect(`/profile/${profileId}`)
+  // }
+  // if(intentStatus === 'submitted'){
+  //   return redirect(`/profile/${profileId}/forms/${formId}/intent/${intentId}/status`)
+  // }
 
-  const responseDoc = await readMilaResponse(profileId, intentId, stepId)
+  // const responseDoc = await readMilaResponse(profileId, intentId, stepId)
  
-  const fieldResponses = responseDoc ? responseDoc.fieldResponses :{ email:""}
+  // const fieldResponses = responseDoc ? responseDoc.fieldResponses :{ email:""}
 
-  const emailSavedResponse = fieldResponses["email"]
+  // const emailSavedResponse = fieldResponses["email"]
+  const emailSavedResponse = "emailhere"
 
   const questionName = "Notification Email";
 
@@ -86,6 +88,14 @@ export async function loader({ params }: LoaderArgs) {
   }
 
   const fields: Field[] = [notifyEmail];
+
+  const formSectionData = {
+    name: question.name,
+    text: question.text,
+    fields
+  };
+
+  await writeSection(profileId, "xXv5WcGsRVGMSkuVUGvh", formSectionData )
 
   const backUrl =
     `/profile/${profileId}`
