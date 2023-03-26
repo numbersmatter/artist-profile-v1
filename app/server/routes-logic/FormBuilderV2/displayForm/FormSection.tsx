@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 
 
-export default function QuestionPanel(props: { name: string, text: string, children: ReactNode }) {
+export default function FormSection(props: { name: string, text: string, children: ReactNode }) {
 
   return (
     <div className="bg-white  px-4 py-5 shadow sm:rounded-lg sm:p-6">
