@@ -2,12 +2,12 @@ import { Link } from "@remix-run/react";
 
 
 export interface IProfileHero {
-  image1: string,
-  image2: string
+ heroImage:string,
+ heroText:string,
 }
 
 export default function ProfileHero(props: IProfileHero) {
-  const { image2} = props;
+  const { heroImage, heroText} = props;
 
   
   return(
@@ -20,7 +20,7 @@ export default function ProfileHero(props: IProfileHero) {
     
         </div>
         <h1 className="mt-24 text-4xl font-bold tracking-tight text-white sm:mt-10 sm:text-6xl">
-          Milachu92 the Pikachu
+         {heroText}
         </h1>
         <p className="mt-6 text-lg leading-8 text-gray-600">
           
@@ -41,7 +41,7 @@ export default function ProfileHero(props: IProfileHero) {
     <div className="relative  lg:col-span-5 lg:-mr-8 xl:absolute xl:inset-0 xl:left-1/2 xl:mr-0">
       <img
         className="rounded-xl aspect-[3/2] w-full bg-gray-50 object-cover lg:absolute lg:inset-0 lg:aspect-auto lg:h-full"
-        src={image2}
+        src={heroImage}
         alt="" />
     </div>
   </div>

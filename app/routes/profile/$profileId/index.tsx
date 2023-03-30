@@ -1,5 +1,6 @@
 import type { LoaderArgs } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
+import { db } from "~/server/db.server"
 import { getOpenOpportunities, getProfileFAQs } from "~/server/routes-logic/profile/profile.server"
 import OpportunityCard from "~/server/routes-logic/profile/ui/OpportunityCard"
 import ProfileFaq from "~/server/routes-logic/profile/ui/ProfileFAQ"
@@ -70,84 +71,100 @@ const faqNotionRaw = [
 
 export async function loader({ params }: LoaderArgs) {
   const profileId = params.profileId ?? "no-profileId"
-  const faqs = await getProfileFAQs("milachu92");
-  const opportunities = await getOpenOpportunities(profileId)
+  // const faqs = await getProfileFAQs("milachu92");
+  const homepageRef = db.assets(profileId).doc("homepage");
+  const homepageSnap = await homepageRef.get();
+  const homepageData = homepageSnap.data();
 
-  const heroSection = {
-
-    image1: "",
-    image2: "https://firebasestorage.googleapis.com/v0/b/component-sites.appspot.com/o/user%2Fpq1caOfoOYMMljX8AXEmPQZEDij2%2FpublicImages%2F99435634-34D8-4696-A006-C0B0C5879155.png?alt=media&token=9fb7dcaa-8227-4d5e-9056-75e85d712ee8"
+  const homepageDefault = {
+    heroImage: "https://images.unsplash.com/photo-1606607291535-b0adfbf7424f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
+    faq: [],
   }
 
+  const homepageDisplay = homepageData ?? homepageDefault
 
-  const faqNotion = faqNotionRaw.map((faq)=> ({
-    profileId: "milachu92",
-    faqQuestion: faq.question,
-    faqAnswer: faq.answer,
-    faqId: faq.id.toString(),
-  }))
+  const opportunities = await getOpenOpportunities(profileId)
+
+  // const heroSection = {
+
+  //   image1: "",
+  //   image2: "https://firebasestorage.googleapis.com/v0/b/component-sites.appspot.com/o/user%2Fpq1caOfoOYMMljX8AXEmPQZEDij2%2FpublicImages%2F99435634-34D8-4696-A006-C0B0C5879155.png?alt=media&token=9fb7dcaa-8227-4d5e-9056-75e85d712ee8"
+  // }
+
+
+  // const faqNotion = faqNotionRaw.map((faq)=> ({
+  //   profileId: "milachu92",
+  //   faqQuestion: faq.question,
+  //   faqAnswer: faq.answer,
+  //   faqId: faq.id.toString(),
+  // }))
+
+  // const homepageRef = db.assets(profileId).doc("homepage");
+  // const homepageData= {
+  //   faq: faqNotion,
+  //   heroImage: heroSection.image2
+  // }
+  // await homepageRef.set(homepageData)
 
 
   return {
-    heroSection,
     opportunities,
-    faqs,
-    faqNotion,
-    image1: "",
-    image2: "https://firebasestorage.googleapis.com/v0/b/component-sites.appspot.com/o/user%2Fpq1caOfoOYMMljX8AXEmPQZEDij2%2FpublicImages%2F99435634-34D8-4696-A006-C0B0C5879155.png?alt=media&token=9fb7dcaa-8227-4d5e-9056-75e85d712ee8"
+    homepageDisplay,
+
   }
 
 }
 
 
 export default function ProfileMain() {
-  const { opportunities, image2, faqNotion, faqs } = useLoaderData<typeof loader>()
+  const { opportunities, homepageDisplay } = useLoaderData<typeof loader>()
 
- 
+
 
   return (
     <div className="space-y-4">
-      <ProfileHero image1={""} image2={image2} />
+      <ProfileHero heroText={homepageDisplay.heroText} heroImage={homepageDisplay.heroImage} />
 
       <div id="open-forms" className="relative">
 
         <div className="mx-auto max-w-7xl py-5  grid grid-cols-1 gap-y-4 ">
           {
             opportunities.length > 0 ? <>
-            <h2 className="mx-auto text-4xl py-3 text-white">Open Forms</h2>
-            {
-              opportunities.map((opportunity) =>{
-                const linkUrl = `tos/${opportunity.opportunityId}`
-                return <OpportunityCard 
-                key={opportunity.opportunityId} 
-                name ={opportunity.name} 
-                text={opportunity.text}
-                linkUrl={linkUrl}
-                />
-                
+              <h2 className="mx-auto text-4xl py-3 text-white">Open Forms</h2>
+              {
+                opportunities.map((opportunity) => {
+                  const linkUrl = `tos/${opportunity.opportunityId}`
+                  return <OpportunityCard
+                    key={opportunity.opportunityId}
+                    name={opportunity.name}
+                    text={opportunity.text}
+                    linkUrl={linkUrl}
+                  />
+
+                }
+                )
               }
-              )
-            }
             </>
-            :
-            <img className='h-72 mx-auto w-auto max-w-lg ' alt="Closed Sign" src='https://firebasestorage.googleapis.com/v0/b/fm-mvp6.appspot.com/o/website-assets%2Fclawfeehouseclosed.png?alt=media&token=8b93aedd-3fa4-4a76-8020-a2182d38db3e'/>
+              :
+              <img className='h-72 mx-auto w-auto max-w-lg ' alt="Closed Sign" src={homepageDisplay.closedImage} />
           }
-            
+
         </div>
       </div>
 
       {
-        faqs.length > 0
-        ? <ProfileFaq faqs={faqs} /> 
-        :null
+        homepageDisplay.faq.length > 0
+          ?
+          <div className=" max-w-2xl mx-auto">
+            <ProfileFaq faqs={homepageDisplay.faq} />
+          </div>
+          : null
       }
 
-      <div className=" max-w-2xl mx-auto">
-      <ProfileFaq faqs={faqNotion} />
 
-      </div>
 
-      
+
+
     </div>
   )
 }

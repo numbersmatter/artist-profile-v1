@@ -16,7 +16,7 @@ export async function loader({params}:LoaderArgs) {
     throw new Response("no profile data", {status:404})
   }
 
-  const modifiedpageHeaderData = {...pageHeaderData, displayName: "Milachu92"}
+  const modifiedpageHeaderData = {...pageHeaderData}
 
   return json( { modifiedpageHeaderData})
   
