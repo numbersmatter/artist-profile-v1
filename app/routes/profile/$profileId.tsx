@@ -11,12 +11,12 @@ import ProfileHeader from "~/server/routes-logic/profile/ui/ProfileHeader";
 export async function loader({params}:LoaderArgs) {
   const profileId = params.profileId ?? "no-profileId"
   const pageHeaderData = await getProfilePageHeaderData(profileId);
-
+  console.log(pageHeaderData)
   if(!pageHeaderData){
     throw new Response("no profile data", {status:404})
   }
 
-  const modifiedpageHeaderData = {...pageHeaderData, displayName: "Milachu92"}
+  const modifiedpageHeaderData = {...pageHeaderData}
 
   return json( { modifiedpageHeaderData})
   
