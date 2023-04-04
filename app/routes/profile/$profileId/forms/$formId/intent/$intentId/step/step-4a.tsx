@@ -167,7 +167,6 @@ export default function Step4a() {
 
     if (areFiles) {
       setFileName(filesArray[0].name)
-
       return setFilesPresent(true)
     }
 
